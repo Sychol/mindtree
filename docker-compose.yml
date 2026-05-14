@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: maeumnamu-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-maeumnamu}
+      POSTGRES_USER: ${POSTGRES_USER:-maeumnamu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-maeumnamu_dev_password}
+      TZ: ${TZ:-Asia/Seoul}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-maeumnamu} -d ${POSTGRES_DB:-maeumnamu}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./api
+    container_name: maeumnamu-api
+    env_file:
+      - .env
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+    container_name: maeumnamu-web
+    env_file:
+      - .env
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
