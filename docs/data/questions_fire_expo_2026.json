@@ -1,0 +1,5558 @@
+{
+  "metadata": {
+    "project": "maeumnamu",
+    "eventSlug": "fire-expo-2026",
+    "sourceCsvFile": "260508_소방박람회 조사항목(full version).csv",
+    "questionCount": 77,
+    "generatedAt": "2026-05-13T07:53:51.478824+00:00",
+    "ruleVersion": "v2-2026-05-13-scale-cutoffs",
+    "encoding": "utf-8",
+    "notes": [
+      "CSV의 응답 방식이 범위형으로만 제공된 Likert 문항은 구현 편의를 위해 전체 option 배열로 확장했다.",
+      "운영 전 문항 문구와 선택지 라벨은 최종 검수한다.",
+      "최종 점수화는 프론트엔드가 아니라 백엔드 scoring service에서 수행한다."
+    ]
+  },
+  "scaleMetadata": {
+    "profile": {
+      "displayName": "기본 문항 / profile",
+      "purpose": "인구통계, 소방 직무, 사건 기준, 지원 이력, 노출 수준, 외부 준거, 지원 필요도, 개입 라우팅을 확인한다. 점수화 대상이 아니라 마음신호 요약과 운영 통계의 비식별 문맥으로 사용한다.",
+      "questionRange": [
+        1,
+        13
+      ],
+      "scoring": {
+        "scored": false
+      }
+    },
+    "phq9": {
+      "displayName": "한국판 우울 증상 척도 / Korean Version of Patient Health Questionnaire-9 / K-PHQ-9",
+      "purpose": "성인의 우울 정도를 측정하는 데 사용되는 자가보고 설문지.",
+      "questionRange": [
+        14,
+        22
+      ],
+      "scoreRange": [
+        0,
+        27
+      ],
+      "scoreAggregation": "sum",
+      "item9": {
+        "localItemNo": 9,
+        "questionNo": 22,
+        "positiveScoreGte": 1
+      },
+      "specialSignals": [
+        {
+          "code": "phq9_high_instability_signal",
+          "condition": "total_score >= 16",
+          "description": "16점 이상인 경우 불안정도 높음으로 기록한다."
+        },
+        {
+          "code": "phq9_item9_positive",
+          "condition": "item9_score >= 1",
+          "description": "자살·자해 의도 포함 문항. 1점 이상이면 위기관리/도움 안내가 필요하다."
+        },
+        {
+          "code": "phq9_severe_with_item9",
+          "condition": "total_score >= 20 and item9_score >= 1",
+          "description": "심한 우울증 의심 구간과 item9 양성이 동시에 나타난 상태로, 도움 안내와 공개 제한을 적용한다."
+        }
+      ],
+      "severityBands": [
+        {
+          "code": "no_specific_findings",
+          "label": "특이소견 없음",
+          "min": 0,
+          "max": 4,
+          "inclusive": true
+        },
+        {
+          "code": "mild_depressive_symptoms",
+          "label": "가벼운 우울증상",
+          "min": 5,
+          "max": 9,
+          "inclusive": true
+        },
+        {
+          "code": "moderate_depression_suspected",
+          "label": "중간 정도 우울증 의심",
+          "min": 10,
+          "max": 19,
+          "inclusive": true
+        },
+        {
+          "code": "severe_depression_score_range",
+          "label": "심한 우울증 의심 점수 구간",
+          "min": 20,
+          "max": 27,
+          "inclusive": true
+        }
+      ],
+      "publicDisplayWarning": "참가자 화면에는 진단명 대신 마음신호 언어를 사용한다."
+    },
+    "pcl5": {
+      "displayName": "한국판 외상 후 스트레스 장애 체크리스트 / K-PCL-5",
+      "purpose": "지난 한 달 동안 겪은 고통스러운 사건으로 인한 PTSD 증상의 심각도를 측정한다.",
+      "questionRange": [
+        23,
+        42
+      ],
+      "scoreRange": [
+        0,
+        80
+      ],
+      "scoreAggregation": "sum",
+      "severityBands": [
+        {
+          "code": "normal_range",
+          "label": "정상범위",
+          "min": 0,
+          "max": 30,
+          "inclusive": true,
+          "description": "일상적 수준의 스트레스이거나 임상적으로 유의미한 PTSD 증상은 낮은 상태"
+        },
+        {
+          "code": "threshold",
+          "label": "임계치",
+          "min": 31,
+          "max": 33,
+          "inclusive": true,
+          "description": "PTSD를 의심해 볼 수 있는 경계 지점으로 정밀진단을 권장하는 상태"
+        },
+        {
+          "code": "high_risk",
+          "label": "고위험군",
+          "min": 34,
+          "max": 80,
+          "inclusive": true,
+          "description": "PTSD 증상이 뚜렷하고 심각할 가능성이 높은 상태로 즉각적인 심리상담 및 치료가 필요한 상태"
+        }
+      ],
+      "riskFlagRules": [
+        {
+          "flag": "trauma_high_signal",
+          "condition": "total_score >= 34"
+        },
+        {
+          "detailsKey": "pcl5_threshold_signal",
+          "condition": "31 <= total_score <= 33"
+        }
+      ],
+      "publicDisplayWarning": "참가자 화면에는 PTSD 진단명 대신 긴장·반복 회상·회피·각성 신호 등 마음신호 언어를 사용한다."
+    },
+    "kmies": {
+      "displayName": "한국판 도덕손상 사건 척도 / Korean Version of Moral Injury Events Scale / K-MIES",
+      "purpose": "재난 현장에서 도덕적 신념에 어긋나는 상황을 겪은 후 느끼는 심리적 고통을 측정하기 위한 척도.",
+      "questionRange": [
+        43,
+        51
+      ],
+      "scoreRange": [
+        9,
+        54
+      ],
+      "scoreAggregation": "sum",
+      "severityBands": [
+        {
+          "code": "low",
+          "label": "낮음",
+          "min": 9,
+          "max": 18,
+          "inclusive": true,
+          "description": "도덕적 갈등 사건을 거의 겪지 않았거나 심리적 영향이 미미한 상태"
+        },
+        {
+          "code": "moderate",
+          "label": "중간",
+          "min": 19,
+          "max": 36,
+          "inclusive": true,
+          "description": "현장 업무 중 도덕적 딜레마나 배신감을 경험했으며 심리적 불편감이 잔존해 있을 가능성이 있는 상태"
+        },
+        {
+          "code": "high",
+          "label": "높음",
+          "min": 37,
+          "max": 54,
+          "inclusive": true,
+          "description": "심각한 도덕적 손상을 입었을 가능성이 있으며 강한 죄책감, 수치심, 조직에 대한 불신이 나타날 수 있으며 전문적인 상담을 권장하는 상태"
+        }
+      ],
+      "riskFlagRules": [
+        {
+          "flag": "moral_injury_high_signal",
+          "condition": "total_score >= 37"
+        }
+      ],
+      "publicDisplayWarning": "참가자 화면에는 도덕손상이라는 진단·낙인 표현 대신 책임감, 자기비난, 배신감, 마음에 남은 장면 같은 마음신호 언어를 사용한다."
+    },
+    "kscs": {
+      "displayName": "한국판 자기자비 척도 / Korean-version of Self-Compassion Scale / K-SCS",
+      "purpose": "고통스러운 상황에서 자신을 얼마나 친절하고 객관적으로 대하는지를 측정하는 척도.",
+      "questionRange": [
+        52,
+        77
+      ],
+      "scoreRange": [
+        1.0,
+        5.0
+      ],
+      "scoreAggregation": "mean_after_reverse_scoring",
+      "rounding": "mean_score를 소수점 1자리로 반올림한 뒤 수준을 판정한다.",
+      "reverseScoredLocalItemNos": [
+        2,
+        3,
+        5,
+        6,
+        8,
+        14,
+        15,
+        19,
+        20,
+        23,
+        25
+      ],
+      "reverseScoredQuestionNos": [
+        53,
+        54,
+        56,
+        57,
+        59,
+        65,
+        66,
+        70,
+        71,
+        74,
+        76
+      ],
+      "reverseFormula": "reversed_score = 6 - answer_value",
+      "severityBands": [
+        {
+          "code": "low",
+          "label": "낮은 수준",
+          "min": 1.0,
+          "max": 2.4,
+          "inclusive": true,
+          "description": "자신에게 비판적이고 엄격한 편"
+        },
+        {
+          "code": "medium",
+          "label": "보통",
+          "min": 2.5,
+          "max": 3.5,
+          "inclusive": true,
+          "description": "상황에 따라 자신을 돌보기도 하지만 큰 시련 앞에서 자기비판이나 고립감을 느낄 수 있음"
+        },
+        {
+          "code": "high",
+          "label": "높음",
+          "min": 3.6,
+          "max": 5.0,
+          "inclusive": true,
+          "description": "자신에 대해 너그럽고 수용적이며 고통을 보편적 인간 경험으로 이해하는 능력이 뛰어남"
+        }
+      ],
+      "riskFlagRules": [],
+      "publicDisplayWarning": "K-SCS는 보호·회복 자원 해석에 사용한다. 낮은 수준이어도 위험 플래그로 자동 처리하지 않는다."
+    }
+  },
+  "questions": [
+    {
+      "questionNo": 1,
+      "scaleCode": "profile",
+      "section": "인구통계",
+      "itemLocalNo": null,
+      "questionKey": "profile_01_age_group",
+      "title": "귀하의 연령대는 어떻게 되십니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 1,
+      "responseRaw": "20대 / 30대 / 40대 / 50대 / 60대 이상",
+      "options": [
+        {
+          "label": "20대",
+          "value": "q01_opt01",
+          "score": null
+        },
+        {
+          "label": "30대",
+          "value": "q01_opt02",
+          "score": null
+        },
+        {
+          "label": "40대",
+          "value": "q01_opt03",
+          "score": null
+        },
+        {
+          "label": "50대",
+          "value": "q01_opt04",
+          "score": null
+        },
+        {
+          "label": "60대 이상",
+          "value": "q01_opt05",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q01_opt01",
+          "q01_opt02",
+          "q01_opt03",
+          "q01_opt04",
+          "q01_opt05"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "연령에 따른 증상 및 자기자비 차이와 표본 특성 확인"
+    },
+    {
+      "questionNo": 2,
+      "scaleCode": "profile",
+      "section": "인구통계",
+      "itemLocalNo": null,
+      "questionKey": "profile_02_gender",
+      "title": "귀하의 성별은 어떻게 되십니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 2,
+      "responseRaw": "남성 / 여성",
+      "options": [
+        {
+          "label": "남성",
+          "value": "q02_opt01",
+          "score": null
+        },
+        {
+          "label": "여성",
+          "value": "q02_opt02",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q02_opt01",
+          "q02_opt02"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "표본 특성 및 성별 차이 검토"
+    },
+    {
+      "questionNo": 3,
+      "scaleCode": "profile",
+      "section": "소방 직무",
+      "itemLocalNo": null,
+      "questionKey": "profile_03_fire_service_status",
+      "title": "귀하는 현재 소방공무원 또는 소방 관련 업무 종사자에 해당하십니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 3,
+      "responseRaw": "현직 / 휴직 / 퇴직 / 소방 관련 종사자 / 일반인",
+      "options": [
+        {
+          "label": "현직",
+          "value": "q03_opt01",
+          "score": null
+        },
+        {
+          "label": "휴직",
+          "value": "q03_opt02",
+          "score": null
+        },
+        {
+          "label": "퇴직",
+          "value": "q03_opt03",
+          "score": null
+        },
+        {
+          "label": "소방 관련 종사자",
+          "value": "q03_opt04",
+          "score": null
+        },
+        {
+          "label": "일반인",
+          "value": "q03_opt05",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q03_opt01",
+          "q03_opt02",
+          "q03_opt03",
+          "q03_opt04",
+          "q03_opt05"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "핵심 분석 표본과 비교군 구분"
+    },
+    {
+      "questionNo": 4,
+      "scaleCode": "profile",
+      "section": "소방 직무",
+      "itemLocalNo": null,
+      "questionKey": "profile_04_service_years",
+      "title": "귀하의 소방 또는 소방 관련 업무 총 근속기간은 어떻게 되십니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 4,
+      "responseRaw": "1년 미만 / 1~5년 / 6~10년 / 11~20년 / 20년 이상",
+      "options": [
+        {
+          "label": "1년 미만",
+          "value": "q04_opt01",
+          "score": null
+        },
+        {
+          "label": "1~5년",
+          "value": "q04_opt02",
+          "score": null
+        },
+        {
+          "label": "6~10년",
+          "value": "q04_opt03",
+          "score": null
+        },
+        {
+          "label": "11~20년",
+          "value": "q04_opt04",
+          "score": null
+        },
+        {
+          "label": "20년 이상",
+          "value": "q04_opt05",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q04_opt01",
+          "q04_opt02",
+          "q04_opt03",
+          "q04_opt04",
+          "q04_opt05"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": {
+        "description": "3번 문항에서 일반인으로 응답한 경우 스킵 가능",
+        "dependsOnQuestionNo": 3,
+        "skipWhenLabelIs": "일반인"
+      },
+      "note": "누적 직무 노출과 증상 차이를 해석, 일반인의 경우 스킵"
+    },
+    {
+      "questionNo": 5,
+      "scaleCode": "profile",
+      "section": "소방 직무",
+      "itemLocalNo": null,
+      "questionKey": "profile_05_duty_area",
+      "title": "귀하가 주로 담당했거나 현재 담당하고 있는 업무 영역은 무엇입니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 5,
+      "responseRaw": "화재진압 / 구조 / 구급 / 상황실 / 행정·예방 / 지휘·관리 / 기타",
+      "options": [
+        {
+          "label": "화재진압",
+          "value": "q05_opt01",
+          "score": null
+        },
+        {
+          "label": "구조",
+          "value": "q05_opt02",
+          "score": null
+        },
+        {
+          "label": "구급",
+          "value": "q05_opt03",
+          "score": null
+        },
+        {
+          "label": "상황실",
+          "value": "q05_opt04",
+          "score": null
+        },
+        {
+          "label": "행정·예방",
+          "value": "q05_opt05",
+          "score": null
+        },
+        {
+          "label": "지휘·관리",
+          "value": "q05_opt06",
+          "score": null
+        },
+        {
+          "label": "기타",
+          "value": "q05_opt07",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q05_opt01",
+          "q05_opt02",
+          "q05_opt03",
+          "q05_opt04",
+          "q05_opt05",
+          "q05_opt06",
+          "q05_opt07"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": {
+        "description": "3번 문항에서 일반인으로 응답한 경우 스킵 가능",
+        "dependsOnQuestionNo": 3,
+        "skipWhenLabelIs": "일반인"
+      },
+      "note": "군집이 특정 직무군에 편중되는지 확인, 일반인의 경우 스킵"
+    },
+    {
+      "questionNo": 6,
+      "scaleCode": "profile",
+      "section": "사건 기준",
+      "itemLocalNo": null,
+      "questionKey": "profile_06_index_event_type",
+      "title": "지금까지의 임무 또는 업무 중 가장 고통스럽게 기억되는 사건은 어떤 유형에 가장 가깝습니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 6,
+      "responseRaw": "동료의 사망 또는 심각한 부상 / 심각한 부상자 또는 사망자 처리 / 자살 사건 현장 대응 / 아동·청소년 피해자 관련 사건 / 대형 재난 또는 다수사상자 사고 / 구조 실패 또는 구조 지연 경험 / 민원·폭언·폭행·법적 분쟁·언론 또는 사회적 비난 / 지휘체계 혼선·조직 갈등·배신감 경험 / 기타 / 해당 없음",
+      "options": [
+        {
+          "label": "동료의 사망 또는 심각한 부상",
+          "value": "q06_opt01",
+          "score": null
+        },
+        {
+          "label": "심각한 부상자 또는 사망자 처리",
+          "value": "q06_opt02",
+          "score": null
+        },
+        {
+          "label": "자살 사건 현장 대응",
+          "value": "q06_opt03",
+          "score": null
+        },
+        {
+          "label": "아동·청소년 피해자 관련 사건",
+          "value": "q06_opt04",
+          "score": null
+        },
+        {
+          "label": "대형 재난 또는 다수사상자 사고",
+          "value": "q06_opt05",
+          "score": null
+        },
+        {
+          "label": "구조 실패 또는 구조 지연 경험",
+          "value": "q06_opt06",
+          "score": null
+        },
+        {
+          "label": "민원·폭언·폭행·법적 분쟁·언론 또는 사회적 비난",
+          "value": "q06_opt07",
+          "score": null
+        },
+        {
+          "label": "지휘체계 혼선·조직 갈등·배신감 경험",
+          "value": "q06_opt08",
+          "score": null
+        },
+        {
+          "label": "기타",
+          "value": "q06_opt09",
+          "score": null
+        },
+        {
+          "label": "해당 없음",
+          "value": "q06_opt10",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q06_opt01",
+          "q06_opt02",
+          "q06_opt03",
+          "q06_opt04",
+          "q06_opt05",
+          "q06_opt06",
+          "q06_opt07",
+          "q06_opt08",
+          "q06_opt09",
+          "q06_opt10"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "K-PCL-5와 K-MIES 응답 기준을 통일"
+    },
+    {
+      "questionNo": 7,
+      "scaleCode": "profile",
+      "section": "사건 기준",
+      "itemLocalNo": null,
+      "questionKey": "profile_07_index_event_timing",
+      "title": "위 문항에서 떠올린 사건은 언제 발생했습니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 7,
+      "responseRaw": "1개월 이내 / 1~3개월 / 3~6개월 / 6개월~1년 / 1년 이상",
+      "options": [
+        {
+          "label": "1개월 이내",
+          "value": "q07_opt01",
+          "score": null
+        },
+        {
+          "label": "1~3개월",
+          "value": "q07_opt02",
+          "score": null
+        },
+        {
+          "label": "3~6개월",
+          "value": "q07_opt03",
+          "score": null
+        },
+        {
+          "label": "6개월~1년",
+          "value": "q07_opt04",
+          "score": null
+        },
+        {
+          "label": "1년 이상",
+          "value": "q07_opt05",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q07_opt01",
+          "q07_opt02",
+          "q07_opt03",
+          "q07_opt04",
+          "q07_opt05"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "급성기·만성기 반응과 개입 라우팅 구분"
+    },
+    {
+      "questionNo": 8,
+      "scaleCode": "profile",
+      "section": "지원 이력",
+      "itemLocalNo": null,
+      "questionKey": "profile_08_support_history",
+      "title": "해당 사건 이후 심리적 도움이나 지원을 받은 적이 있습니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 8,
+      "responseRaw": "없음 / 동료 또는 가족과 상의 / 조직 내 상담 또는 면담 / 외부 전문가 상담 / 병원 또는 정신건강의학과 이용 / 기타",
+      "options": [
+        {
+          "label": "없음",
+          "value": "q08_opt01",
+          "score": null
+        },
+        {
+          "label": "동료 또는 가족과 상의",
+          "value": "q08_opt02",
+          "score": null
+        },
+        {
+          "label": "조직 내 상담 또는 면담",
+          "value": "q08_opt03",
+          "score": null
+        },
+        {
+          "label": "외부 전문가 상담",
+          "value": "q08_opt04",
+          "score": null
+        },
+        {
+          "label": "병원 또는 정신건강의학과 이용",
+          "value": "q08_opt05",
+          "score": null
+        },
+        {
+          "label": "기타",
+          "value": "q08_opt06",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q08_opt01",
+          "q08_opt02",
+          "q08_opt03",
+          "q08_opt04",
+          "q08_opt05",
+          "q08_opt06"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "상담이나 조직 지원을 이용한 경험"
+    },
+    {
+      "questionNo": 9,
+      "scaleCode": "profile",
+      "section": "노출 수준",
+      "itemLocalNo": null,
+      "questionKey": "profile_09_repeated_exposure",
+      "title": "최근 1년 동안 위와 비슷한 고위험 또는 고통스러운 사건을 반복해서 경험한 적이 있습니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 9,
+      "responseRaw": "없음 / 1~2회 / 3~5회 / 6회 이상",
+      "options": [
+        {
+          "label": "없음",
+          "value": "q09_opt01",
+          "score": null
+        },
+        {
+          "label": "1~2회",
+          "value": "q09_opt02",
+          "score": null
+        },
+        {
+          "label": "3~5회",
+          "value": "q09_opt03",
+          "score": null
+        },
+        {
+          "label": "6회 이상",
+          "value": "q09_opt04",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q09_opt01",
+          "q09_opt02",
+          "q09_opt03",
+          "q09_opt04"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "단일 사건 반응과 반복 노출 반응 구분"
+    },
+    {
+      "questionNo": 10,
+      "scaleCode": "profile",
+      "section": "외부 준거",
+      "itemLocalNo": null,
+      "questionKey": "profile_10_current_distress_0_10",
+      "title": "현재 그 사건을 떠올릴 때 느끼는 심리적 고통은 어느 정도입니까?",
+      "description": null,
+      "questionType": "number",
+      "required": true,
+      "displayOrder": 10,
+      "responseRaw": "0점(전혀 고통스럽지 않음) ~ 10점(매우 고통스러움)",
+      "options": [
+        {
+          "label": "0점(전혀 고통스럽지 않음)",
+          "value": 0,
+          "score": null
+        },
+        {
+          "label": "1점",
+          "value": 1,
+          "score": null
+        },
+        {
+          "label": "2점",
+          "value": 2,
+          "score": null
+        },
+        {
+          "label": "3점",
+          "value": 3,
+          "score": null
+        },
+        {
+          "label": "4점",
+          "value": 4,
+          "score": null
+        },
+        {
+          "label": "5점",
+          "value": 5,
+          "score": null
+        },
+        {
+          "label": "6점",
+          "value": 6,
+          "score": null
+        },
+        {
+          "label": "7점",
+          "value": 7,
+          "score": null
+        },
+        {
+          "label": "8점",
+          "value": 8,
+          "score": null
+        },
+        {
+          "label": "9점",
+          "value": 9,
+          "score": null
+        },
+        {
+          "label": "10점(매우 고통스러움)",
+          "value": 10,
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "min": 0,
+        "max": 10,
+        "step": 1
+      },
+      "scoring": {
+        "scored": false,
+        "externalCriterion": true
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "단축형 점수의 실제 체감 고통 예측력 검토"
+    },
+    {
+      "questionNo": 11,
+      "scaleCode": "profile",
+      "section": "외부 준거",
+      "itemLocalNo": null,
+      "questionKey": "profile_11_functional_impairment_0_10",
+      "title": "최근 2주 동안 심리적 어려움으로 인해 업무, 대인관계, 가정생활 또는 일상생활에 지장이 있었습니까?",
+      "description": null,
+      "questionType": "number",
+      "required": true,
+      "displayOrder": 11,
+      "responseRaw": "0점(전혀 지장 없음) ~ 10점(매우 큰 지장 있음)",
+      "options": [
+        {
+          "label": "0점(전혀 지장 없음)",
+          "value": 0,
+          "score": null
+        },
+        {
+          "label": "1점",
+          "value": 1,
+          "score": null
+        },
+        {
+          "label": "2점",
+          "value": 2,
+          "score": null
+        },
+        {
+          "label": "3점",
+          "value": 3,
+          "score": null
+        },
+        {
+          "label": "4점",
+          "value": 4,
+          "score": null
+        },
+        {
+          "label": "5점",
+          "value": 5,
+          "score": null
+        },
+        {
+          "label": "6점",
+          "value": 6,
+          "score": null
+        },
+        {
+          "label": "7점",
+          "value": 7,
+          "score": null
+        },
+        {
+          "label": "8점",
+          "value": 8,
+          "score": null
+        },
+        {
+          "label": "9점",
+          "value": 9,
+          "score": null
+        },
+        {
+          "label": "10점(매우 큰 지장 있음)",
+          "value": 10,
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "min": 0,
+        "max": 10,
+        "step": 1
+      },
+      "scoring": {
+        "scored": false,
+        "externalCriterion": true
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "업무·대인·가정 기능 손상 수준 확인"
+    },
+    {
+      "questionNo": 12,
+      "scaleCode": "profile",
+      "section": "지원 필요도",
+      "itemLocalNo": null,
+      "questionKey": "profile_12_support_need_0_10",
+      "title": "현재 심리상담, 정신건강 전문가 또는 전문기관의 도움이 필요하다고 느끼십니까?",
+      "description": null,
+      "questionType": "number",
+      "required": true,
+      "displayOrder": 12,
+      "responseRaw": "0점(전혀 필요하지 않음) ~ 10점(매우 필요함)",
+      "options": [
+        {
+          "label": "0점(전혀 필요하지 않음)",
+          "value": 0,
+          "score": null
+        },
+        {
+          "label": "1점",
+          "value": 1,
+          "score": null
+        },
+        {
+          "label": "2점",
+          "value": 2,
+          "score": null
+        },
+        {
+          "label": "3점",
+          "value": 3,
+          "score": null
+        },
+        {
+          "label": "4점",
+          "value": 4,
+          "score": null
+        },
+        {
+          "label": "5점",
+          "value": 5,
+          "score": null
+        },
+        {
+          "label": "6점",
+          "value": 6,
+          "score": null
+        },
+        {
+          "label": "7점",
+          "value": 7,
+          "score": null
+        },
+        {
+          "label": "8점",
+          "value": 8,
+          "score": null
+        },
+        {
+          "label": "9점",
+          "value": 9,
+          "score": null
+        },
+        {
+          "label": "10점(매우 필요함)",
+          "value": 10,
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "min": 0,
+        "max": 10,
+        "step": 1
+      },
+      "scoring": {
+        "scored": false,
+        "externalCriterion": true
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "선별 결과가 실제 지원 요구와 연결되는지 확인"
+    },
+    {
+      "questionNo": 13,
+      "scaleCode": "profile",
+      "section": "개입 라우팅",
+      "itemLocalNo": null,
+      "questionKey": "profile_13_preferred_support",
+      "title": "현재 귀하에게 가장 도움이 될 것 같은 지원 방식은 무엇입니까?",
+      "description": null,
+      "questionType": "single_select",
+      "required": true,
+      "displayOrder": 13,
+      "responseRaw": "짧은 마음 안정 훈련 / 죄책감·자책감 완화 / 트라우마 반응에 대한 심리교육 / 나와 비슷한 동료의 회복 사례 보기 / 수면·휴식 관리 / 전문가 상담 연결 / 아직 잘 모르겠음",
+      "options": [
+        {
+          "label": "짧은 마음 안정 훈련",
+          "value": "q13_opt01",
+          "score": null
+        },
+        {
+          "label": "죄책감·자책감 완화",
+          "value": "q13_opt02",
+          "score": null
+        },
+        {
+          "label": "트라우마 반응에 대한 심리교육",
+          "value": "q13_opt03",
+          "score": null
+        },
+        {
+          "label": "나와 비슷한 동료의 회복 사례 보기",
+          "value": "q13_opt04",
+          "score": null
+        },
+        {
+          "label": "수면·휴식 관리",
+          "value": "q13_opt05",
+          "score": null
+        },
+        {
+          "label": "전문가 상담 연결",
+          "value": "q13_opt06",
+          "score": null
+        },
+        {
+          "label": "아직 잘 모르겠음",
+          "value": "q13_opt07",
+          "score": null
+        }
+      ],
+      "scoreMap": {},
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          "q13_opt01",
+          "q13_opt02",
+          "q13_opt03",
+          "q13_opt04",
+          "q13_opt05",
+          "q13_opt06",
+          "q13_opt07"
+        ]
+      },
+      "scoring": {
+        "scored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "맞춤형 개입 추천 규칙 설계"
+    },
+    {
+      "questionNo": 14,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 1,
+      "questionKey": "phq9_01",
+      "title": "기분이 가라앉거나, 우울하거나, 혹은 희망이 없다고 느끼셨습니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 14,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 15,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 2,
+      "questionKey": "phq9_02",
+      "title": "평소 하던 일에 대한 흥미나 즐거움을 잃어버렸습니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 15,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 16,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 3,
+      "questionKey": "phq9_03",
+      "title": "잠들기가 어렵거나 자주 깨십니까? 혹은 반대로 너무 많이 주무십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 16,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 17,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 4,
+      "questionKey": "phq9_04",
+      "title": "평소보다 식욕이 줄었거나 반대로 너무 많이 드십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 17,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 18,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 5,
+      "questionKey": "phq9_05",
+      "title": "피곤하다고 느끼거나 기운이 없으십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 18,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 19,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 6,
+      "questionKey": "phq9_06",
+      "title": "다른 사람이 알아챌 정도로 거동이나 말이 느려지거나 반대로 너무 초조해서 가만히 있지 못하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 19,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 20,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 7,
+      "questionKey": "phq9_07",
+      "title": "내가 잘못했거나 실패했다는 생각이 들어 자신에게 실망하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 20,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 21,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 8,
+      "questionKey": "phq9_08",
+      "title": "신문을 읽거나 TV를 보는 것과 같은 일상적인 일에 집중하기가 어려우십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 21,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 22,
+      "scaleCode": "phq9",
+      "section": "K-PHQ-9",
+      "itemLocalNo": 9,
+      "questionKey": "phq9_09",
+      "title": "차라리 죽는 것이 낫겠다는 생각이 들거나, 어떤 식으로든 자신을 해치려고 생각하셨습니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 22,
+      "responseRaw": "0(전혀 없음) ~ 3(거의 매일)",
+      "options": [
+        {
+          "label": "0(전혀 없음)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(며칠 동안)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(일주일 이상)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(거의 매일)",
+          "value": 3,
+          "score": 3
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          3
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": {
+        "type": "phq9_item9_positive",
+        "positiveScoreGte": 1
+      },
+      "displayCondition": null,
+      "note": "한국판 우울 증상 척도"
+    },
+    {
+      "questionNo": 23,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 1,
+      "questionKey": "pcl5_01",
+      "title": "그 경험에 대한 반복적이고 괴로운 기억이 떠오르십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 23,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 24,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 2,
+      "questionKey": "pcl5_02",
+      "title": "그 스트레스 경험에 대한 악몽을 반복해서 꾸십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 24,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 25,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 3,
+      "questionKey": "pcl5_03",
+      "title": "별안간 그 스트레스 경험을 실제로 다시 겪는 것처럼(마치 그 곳에 실제로 되돌아가서 경험하는 것 같이) 느껴지거나 행동하게 됩니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 25,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 26,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 4,
+      "questionKey": "pcl5_04",
+      "title": "그 스트레스 경험을 다시 떠오르게 한다면 매우 불쾌한 감정이나 심리적 고통을 느끼십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 26,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 27,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 5,
+      "questionKey": "pcl5_05",
+      "title": "그 스트레스 경험을 다시 떠오르게 한다면, 격한 신체 반응이 나타납니까? (예: 심장이 두근거림, 숨쉬기 힘듦, 땀이 남)",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 27,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 28,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 6,
+      "questionKey": "pcl5_06",
+      "title": "그 스트레스 경험과 관련된 기억이나 생각 또는 감정을 피하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 28,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 29,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 7,
+      "questionKey": "pcl5_07",
+      "title": "그 스트레스 경험을 떠오르게 하는 외부 상황을 피하십니까? (예: 사람, 장소, 대화, 활동, 물건 또는 상황)",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 29,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 30,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 8,
+      "questionKey": "pcl5_08",
+      "title": "그 스트레스 경험의 중요한 부분을 기억하기 어렵습니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 30,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 31,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 9,
+      "questionKey": "pcl5_09",
+      "title": "자기 자신, 다른 사람들, 혹은 세상에 대해 매우 부정적인 신념을 가지고 있습니까? (예: 나는 나쁘다, 나에게는 뭔가 심각하게 잘못된 것이 있다, 아무도 믿을 수 없다, 세상은 너무나 위험하다)",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 31,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 32,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 10,
+      "questionKey": "pcl5_10",
+      "title": "그 스트레스 경험이나 그 경험 이후에 일어난 일들에 대하여 자기 탓이나 다른 사람 탓을 하고 있습니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 32,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 33,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 11,
+      "questionKey": "pcl5_11",
+      "title": "두려움, 공포, 혐오, 분노, 죄책감, 수치심 같은 매우 부정적인 감정이 있습니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 33,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 34,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 12,
+      "questionKey": "pcl5_12",
+      "title": "이전에 자주 즐겼던 활동들에 대한 흥미를 잃어버렸습니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 34,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 35,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 13,
+      "questionKey": "pcl5_13",
+      "title": "다른 사람들과 동떨어졌거나 단절되었다고 느낍니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 35,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 36,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 14,
+      "questionKey": "pcl5_14",
+      "title": "긍정적인 감정을 느끼는 것이 어렵습니까? (예: 행복하다고 느낄 수 없거나 가까운 사람들에 대해 사랑하는 감정을 가질 수 없음)",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 36,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 37,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 15,
+      "questionKey": "pcl5_15",
+      "title": "과민 행동, 분노 폭발 또는 공격적인 행동을 하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 37,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 38,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 16,
+      "questionKey": "pcl5_16",
+      "title": "너무 많은 위험을 감수하거나 자신에게 해가 될 수 있는 위험한 행동을 하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 38,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 39,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 17,
+      "questionKey": "pcl5_17",
+      "title": "조금도 방심하지 않으려고 하거나 주변을 감시하거나 혹은 경계하게 되십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 39,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 40,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 18,
+      "questionKey": "pcl5_18",
+      "title": "조마조마한 느낌이 들거나 쉽게 깜짝 놀라십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 40,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 41,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 19,
+      "questionKey": "pcl5_19",
+      "title": "집중하기가 어렵습니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 41,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 42,
+      "scaleCode": "pcl5",
+      "section": "K-PCL-5",
+      "itemLocalNo": 20,
+      "questionKey": "pcl5_20",
+      "title": "잠들기가 어렵거나 중간에 깨십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 42,
+      "responseRaw": "0(아님) ~ 4(아주 많이)",
+      "options": [
+        {
+          "label": "0(아님)",
+          "value": 0,
+          "score": 0
+        },
+        {
+          "label": "1(약간)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(보통)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(많이)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(아주 많이)",
+          "value": 4,
+          "score": 4
+        }
+      ],
+      "scoreMap": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          0,
+          4
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 외상 후 스트레스 장애 체크리스트"
+    },
+    {
+      "questionNo": 43,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 1,
+      "questionKey": "kmies_01",
+      "title": "당시 도덕적으로 잘못된 일을 목격하였다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 43,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 44,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 2,
+      "questionKey": "kmies_02",
+      "title": "당시 타인의 부도덕한 행위를 목격하여 괴로웠다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 44,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 45,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 3,
+      "questionKey": "kmies_03",
+      "title": "당시 나의 도덕 규범이나 가치를 위반하는 행동을 하였다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 45,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 46,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 4,
+      "questionKey": "kmies_04",
+      "title": "당시 나의 도덕이나 가치를 위반하는 행동을 하여 현재 괴롭다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 46,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 47,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 5,
+      "questionKey": "kmies_05",
+      "title": "당시 내가 했어야 하는 일을 하지 못하였으므로 나는 도덕을 위반한 셈이다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 47,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 48,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 6,
+      "questionKey": "kmies_06",
+      "title": "내가 했어야 하는 일을 하지 못하여 도덕을 위반한 셈이어서 현재 괴롭다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 48,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 49,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 7,
+      "questionKey": "kmies_07",
+      "title": "당시 내가 신뢰하던 상사(리더)에 의해 배신 당하였다고 느낀다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 49,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 50,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 8,
+      "questionKey": "kmies_08",
+      "title": "당시 내가 신뢰하던 동료에 의해 배신 당하였다고 느낀다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 50,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 51,
+      "scaleCode": "kmies",
+      "section": "K-MIES",
+      "itemLocalNo": 9,
+      "questionKey": "kmies_09",
+      "title": "당시 내가 신뢰하던 타인에 의해 배신 당하였다고 느낀다.",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 51,
+      "responseRaw": "1(전혀 그렇지 않다) ~ 6(매우 그렇다)",
+      "options": [
+        {
+          "label": "1(전혀 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(대체로 그렇지 않다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(약간 그렇지 않다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(약간 그렇다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(대체로 그렇다)",
+          "value": 5,
+          "score": 5
+        },
+        {
+          "label": "6(매우 그렇다)",
+          "value": 6,
+          "score": 6
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          6
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 도덕손상 사건 척도"
+    },
+    {
+      "questionNo": 52,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 1,
+      "questionKey": "kscs_01",
+      "title": "나의 마음이 고통스러울 때, 나 자신에게 필요한 정서적 지지와 따스함을 주려고 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 52,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 53,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 2,
+      "questionKey": "kscs_02",
+      "title": "나의 단점에 대해 내 스스로에게 냉혹하고 비판적이신 편입니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 53,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 54,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 3,
+      "questionKey": "kscs_03",
+      "title": "무언가 나를 힘들게 할 때, 나만 고통을 겪는 것 같아 세상에서 소외된 느낌을 받으십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 54,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 55,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 4,
+      "questionKey": "kscs_04",
+      "title": "나에게 좋지 않을 일이 생길 때, 이러한 고통이 모든 사람이 겪는 삶의 일부라고 생각하려 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 55,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 56,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 5,
+      "questionKey": "kscs_05",
+      "title": "정서적으로 힘들 때, 나는 그 감정에만 너무 몰두해서 쉽게 빠져나오지 못하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 56,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 57,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 6,
+      "questionKey": "kscs_06",
+      "title": "무언가 중요한 일에 실패했을 때, 나만의 괴로움에 깊이 빠져드는 경향이 있으십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 57,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 58,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 7,
+      "questionKey": "kscs_07",
+      "title": "무언가 나를 괴롭힐 때, 감정의 균형을 유지하려고 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 58,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 59,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 8,
+      "questionKey": "kscs_08",
+      "title": "실수를 저질렀을 때, 자신을 심하게 자책하며 괴로워하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 59,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 60,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 9,
+      "questionKey": "kscs_09",
+      "title": "나를 괴롭히는 무언가가 있을 때, 나는 그 상황을 더 넓은 관점에서 바라보려 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 60,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 61,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 10,
+      "questionKey": "kscs_10",
+      "title": "내가 정서적으로 고통스러울 때, 나는 대다수의 사람들도 이와 비슷한 감정을 느낀다는 사실을 기억하려 하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 61,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 62,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 11,
+      "questionKey": "kscs_11",
+      "title": "나의 단점이나 부족함에 대해 너그러운 마음을 가지려고 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 62,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 63,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 12,
+      "questionKey": "kscs_12",
+      "title": "정서적으로 힘들 때, 나는 그 감정을 지켜보면서 너무 사로잡히지 않으려고 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 63,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 64,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 13,
+      "questionKey": "kscs_13",
+      "title": "힘들 때, 나는 다른 사람들도 나처럼 힘든 시기를 겪는다는 것을 떠올리십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 64,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 65,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 14,
+      "questionKey": "kscs_14",
+      "title": "마음에 들지 않는 나의 모습이 있을 때, 나 자신을 비하하며 괴로워하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 65,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 66,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 15,
+      "questionKey": "kscs_15",
+      "title": "일이 잘 안 풀릴 때, 나는 그 실패를 나의 인격과 동일하게 여기며 괴로워하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 66,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 67,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 16,
+      "questionKey": "kscs_16",
+      "title": "내가 실패를 겪었을 때, 대다수의 사람들도 실패를 겪는다는 사실을 객관적으로 이해하려 하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 67,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 68,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 17,
+      "questionKey": "kscs_17",
+      "title": "고통스러운 일이 생길 때, 나는 내 감정을 차분하게 관찰하려 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 68,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 69,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 18,
+      "questionKey": "kscs_18",
+      "title": "내가 정서적으로 힘들 때, 스스로에게 다정하게 대하려고 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 69,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 70,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 19,
+      "questionKey": "kscs_19",
+      "title": "나 자신을 충분히 가치 있는 사람이라고 생각하지 않으십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 70,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 71,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 20,
+      "questionKey": "kscs_20",
+      "title": "무언가 나를 힘들게 할 때, 나는 내 감정에만 매몰되는 경향이 있으십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 71,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 72,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 21,
+      "questionKey": "kscs_21",
+      "title": "나 자신에게 결점과 부족함이 있을 때, 나 자신을 비판하기 보다 너그럽게 대하려 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 72,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 73,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 22,
+      "questionKey": "kscs_22",
+      "title": "내가 고통스러울 때, 나는 내 감정을 너무 억누르거나 지나치게 부풀리지 않고 균형 있게 보려 하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 73,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 74,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 23,
+      "questionKey": "kscs_23",
+      "title": "내가 실패했을 때, 나만 유독 실패한 것 같아 다른 사람들과 분리된 느낌을 받으십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 74,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 75,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 24,
+      "questionKey": "kscs_24",
+      "title": "내가 고통스러운 감정을 느낄 때, 나는 그 감정을 한 걸음 물러나 객관적으로 바라보려고 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 75,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 76,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 25,
+      "questionKey": "kscs_25",
+      "title": "내가 고통스러운 일을 겪을 때, 나 자신에게 무심하거나 소홀히 대하는 경향이 있으십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 76,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": true,
+        "reverseFormula": "6 - answer_value"
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    },
+    {
+      "questionNo": 77,
+      "scaleCode": "kscs",
+      "section": "K-SCS",
+      "itemLocalNo": 26,
+      "questionKey": "kscs_26",
+      "title": "내가 실수하거나 실패했을 때, 스스로에게 참을성 있게 대하려고 노력하십니까?",
+      "description": null,
+      "questionType": "likert",
+      "required": true,
+      "displayOrder": 77,
+      "responseRaw": "1(거의 그렇지 않다) ~ 5(거의 항상 그렇다)",
+      "options": [
+        {
+          "label": "1(거의 그렇지 않다)",
+          "value": 1,
+          "score": 1
+        },
+        {
+          "label": "2(그렇지 않은 편이다)",
+          "value": 2,
+          "score": 2
+        },
+        {
+          "label": "3(보통이다)",
+          "value": 3,
+          "score": 3
+        },
+        {
+          "label": "4(그런 편이다)",
+          "value": 4,
+          "score": 4
+        },
+        {
+          "label": "5(거의 항상 그렇다)",
+          "value": 5,
+          "score": 5
+        }
+      ],
+      "scoreMap": {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5
+      },
+      "validation": {
+        "required": true,
+        "allowedValues": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "scoring": {
+        "scored": true,
+        "method": "likert_score_map",
+        "scoreRange": [
+          1,
+          5
+        ],
+        "reverseScored": false
+      },
+      "riskTrigger": null,
+      "displayCondition": null,
+      "note": "한국판 자기자비 척도"
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "schemaVersion": "maeumnamu.scoring-rules.v1",
+  "ruleVersion": "v2-2026-05-13-scale-cutoffs",
+  "sourceCsvFile": "260508_소방박람회 조사항목(full version).csv",
+  "scaleMetadata": {
+    "profile": {
+      "displayName": "기본 문항 / profile",
+      "purpose": "인구통계, 소방 직무, 사건 기준, 지원 이력, 노출 수준, 외부 준거, 지원 필요도, 개입 라우팅을 확인한다. 점수화 대상이 아니라 마음신호 요약과 운영 통계의 비식별 문맥으로 사용한다.",
+      "questionRange": [
+        1,
+        13
+      ],
+      "scoring": {
+        "scored": false
+      }
+    },
+    "phq9": {
+      "displayName": "한국판 우울 증상 척도 / Korean Version of Patient Health Questionnaire-9 / K-PHQ-9",
+      "purpose": "성인의 우울 정도를 측정하는 데 사용되는 자가보고 설문지.",
+      "questionRange": [
+        14,
+        22
+      ],
+      "scoreRange": [
+        0,
+        27
+      ],
+      "scoreAggregation": "sum",
+      "item9": {
+        "localItemNo": 9,
+        "questionNo": 22,
+        "positiveScoreGte": 1
+      },
+      "specialSignals": [
+        {
+          "code": "phq9_high_instability_signal",
+          "condition": "total_score >= 16",
+          "description": "16점 이상인 경우 불안정도 높음으로 기록한다."
+        },
+        {
+          "code": "phq9_item9_positive",
+          "condition": "item9_score >= 1",
+          "description": "자살·자해 의도 포함 문항. 1점 이상이면 위기관리/도움 안내가 필요하다."
+        },
+        {
+          "code": "phq9_severe_with_item9",
+          "condition": "total_score >= 20 and item9_score >= 1",
+          "description": "심한 우울증 의심 구간과 item9 양성이 동시에 나타난 상태로, 도움 안내와 공개 제한을 적용한다."
+        }
+      ],
+      "severityBands": [
+        {
+          "code": "no_specific_findings",
+          "label": "특이소견 없음",
+          "min": 0,
+          "max": 4,
+          "inclusive": true
+        },
+        {
+          "code": "mild_depressive_symptoms",
+          "label": "가벼운 우울증상",
+          "min": 5,
+          "max": 9,
+          "inclusive": true
+        },
+        {
+          "code": "moderate_depression_suspected",
+          "label": "중간 정도 우울증 의심",
+          "min": 10,
+          "max": 19,
+          "inclusive": true
+        },
+        {
+          "code": "severe_depression_score_range",
+          "label": "심한 우울증 의심 점수 구간",
+          "min": 20,
+          "max": 27,
+          "inclusive": true
+        }
+      ],
+      "publicDisplayWarning": "참가자 화면에는 진단명 대신 마음신호 언어를 사용한다."
+    },
+    "pcl5": {
+      "displayName": "한국판 외상 후 스트레스 장애 체크리스트 / K-PCL-5",
+      "purpose": "지난 한 달 동안 겪은 고통스러운 사건으로 인한 PTSD 증상의 심각도를 측정한다.",
+      "questionRange": [
+        23,
+        42
+      ],
+      "scoreRange": [
+        0,
+        80
+      ],
+      "scoreAggregation": "sum",
+      "severityBands": [
+        {
+          "code": "normal_range",
+          "label": "정상범위",
+          "min": 0,
+          "max": 30,
+          "inclusive": true,
+          "description": "일상적 수준의 스트레스이거나 임상적으로 유의미한 PTSD 증상은 낮은 상태"
+        },
+        {
+          "code": "threshold",
+          "label": "임계치",
+          "min": 31,
+          "max": 33,
+          "inclusive": true,
+          "description": "PTSD를 의심해 볼 수 있는 경계 지점으로 정밀진단을 권장하는 상태"
+        },
+        {
+          "code": "high_risk",
+          "label": "고위험군",
+          "min": 34,
+          "max": 80,
+          "inclusive": true,
+          "description": "PTSD 증상이 뚜렷하고 심각할 가능성이 높은 상태로 즉각적인 심리상담 및 치료가 필요한 상태"
+        }
+      ],
+      "riskFlagRules": [
+        {
+          "flag": "trauma_high_signal",
+          "condition": "total_score >= 34"
+        },
+        {
+          "detailsKey": "pcl5_threshold_signal",
+          "condition": "31 <= total_score <= 33"
+        }
+      ],
+      "publicDisplayWarning": "참가자 화면에는 PTSD 진단명 대신 긴장·반복 회상·회피·각성 신호 등 마음신호 언어를 사용한다."
+    },
+    "kmies": {
+      "displayName": "한국판 도덕손상 사건 척도 / Korean Version of Moral Injury Events Scale / K-MIES",
+      "purpose": "재난 현장에서 도덕적 신념에 어긋나는 상황을 겪은 후 느끼는 심리적 고통을 측정하기 위한 척도.",
+      "questionRange": [
+        43,
+        51
+      ],
+      "scoreRange": [
+        9,
+        54
+      ],
+      "scoreAggregation": "sum",
+      "severityBands": [
+        {
+          "code": "low",
+          "label": "낮음",
+          "min": 9,
+          "max": 18,
+          "inclusive": true,
+          "description": "도덕적 갈등 사건을 거의 겪지 않았거나 심리적 영향이 미미한 상태"
+        },
+        {
+          "code": "moderate",
+          "label": "중간",
+          "min": 19,
+          "max": 36,
+          "inclusive": true,
+          "description": "현장 업무 중 도덕적 딜레마나 배신감을 경험했으며 심리적 불편감이 잔존해 있을 가능성이 있는 상태"
+        },
+        {
+          "code": "high",
+          "label": "높음",
+          "min": 37,
+          "max": 54,
+          "inclusive": true,
+          "description": "심각한 도덕적 손상을 입었을 가능성이 있으며 강한 죄책감, 수치심, 조직에 대한 불신이 나타날 수 있으며 전문적인 상담을 권장하는 상태"
+        }
+      ],
+      "riskFlagRules": [
+        {
+          "flag": "moral_injury_high_signal",
+          "condition": "total_score >= 37"
+        }
+      ],
+      "publicDisplayWarning": "참가자 화면에는 도덕손상이라는 진단·낙인 표현 대신 책임감, 자기비난, 배신감, 마음에 남은 장면 같은 마음신호 언어를 사용한다."
+    },
+    "kscs": {
+      "displayName": "한국판 자기자비 척도 / Korean-version of Self-Compassion Scale / K-SCS",
+      "purpose": "고통스러운 상황에서 자신을 얼마나 친절하고 객관적으로 대하는지를 측정하는 척도.",
+      "questionRange": [
+        52,
+        77
+      ],
+      "scoreRange": [
+        1.0,
+        5.0
+      ],
+      "scoreAggregation": "mean_after_reverse_scoring",
+      "rounding": "mean_score를 소수점 1자리로 반올림한 뒤 수준을 판정한다.",
+      "reverseScoredLocalItemNos": [
+        2,
+        3,
+        5,
+        6,
+        8,
+        14,
+        15,
+        19,
+        20,
+        23,
+        25
+      ],
+      "reverseScoredQuestionNos": [
+        53,
+        54,
+        56,
+        57,
+        59,
+        65,
+        66,
+        70,
+        71,
+        74,
+        76
+      ],
+      "reverseFormula": "reversed_score = 6 - answer_value",
+      "severityBands": [
+        {
+          "code": "low",
+          "label": "낮은 수준",
+          "min": 1.0,
+          "max": 2.4,
+          "inclusive": true,
+          "description": "자신에게 비판적이고 엄격한 편"
+        },
+        {
+          "code": "medium",
+          "label": "보통",
+          "min": 2.5,
+          "max": 3.5,
+          "inclusive": true,
+          "description": "상황에 따라 자신을 돌보기도 하지만 큰 시련 앞에서 자기비판이나 고립감을 느낄 수 있음"
+        },
+        {
+          "code": "high",
+          "label": "높음",
+          "min": 3.6,
+          "max": 5.0,
+          "inclusive": true,
+          "description": "자신에 대해 너그럽고 수용적이며 고통을 보편적 인간 경험으로 이해하는 능력이 뛰어남"
+        }
+      ],
+      "riskFlagRules": [],
+      "publicDisplayWarning": "K-SCS는 보호·회복 자원 해석에 사용한다. 낮은 수준이어도 위험 플래그로 자동 처리하지 않는다."
+    }
+  },
+  "implementationNotes": [
+    "점수화와 위험 플래그는 백엔드 scoring/risk service에서 최종 계산한다.",
+    "K-PHQ-9, K-PCL-5, K-MIES는 합산 점수 기준이다.",
+    "K-SCS는 역채점 후 평균값 기준이며, 수준 판정은 소수점 1자리 반올림 평균값으로 한다.",
+    "위험 플래그는 참가자 완료 또는 상품 지급을 자동 차단하지 않는다.",
+    "참가자 화면에는 진단명 대신 마음신호 언어를 사용한다."
+  ]
+}
