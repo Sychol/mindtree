@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 import { ApiClientError } from "../../api/client";
 import { useAdminAuth } from "../../hooks/useAdminAuth";
+import { adminErrorMessage } from "../../utils/adminLabels";
 
 function errorText(error: unknown): string {
   if (error instanceof ApiClientError) {
-    return error.message;
+    return adminErrorMessage(error, "로그인에 실패했습니다.");
   }
-  return "Login failed.";
+  return "로그인에 실패했습니다.";
 }
 
 export function AdminLoginPage() {
@@ -36,10 +37,10 @@ export function AdminLoginPage() {
   return (
     <main className="admin-login">
       <form className="admin-login__panel" onSubmit={handleSubmit}>
-        <p className="admin-eyebrow">Field Admin</p>
-        <h1>Operator Login</h1>
+        <p className="admin-eyebrow">현장 관리자</p>
+        <h1>관리자 로그인</h1>
         <label className="admin-field">
-          Email
+          이메일
           <input
             autoComplete="username"
             className="admin-input"
@@ -49,7 +50,7 @@ export function AdminLoginPage() {
           />
         </label>
         <label className="admin-field">
-          Password
+          비밀번호
           <input
             autoComplete="current-password"
             className="admin-input"
@@ -60,7 +61,7 @@ export function AdminLoginPage() {
         </label>
         {error ? <div className="admin-alert admin-alert--error">{error}</div> : null}
         <button className="admin-button admin-button--primary" disabled={submitting} type="submit">
-          {submitting ? "Signing in" : "Sign in"}
+          {submitting ? "로그인 중" : "로그인"}
         </button>
       </form>
     </main>

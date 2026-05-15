@@ -3,13 +3,13 @@ import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 const ADMIN_NAV = [
-  ["Dashboard", "dashboard"],
-  ["Cards", "cards"],
-  ["Replies", "replies"],
-  ["Keywords", "keywords"],
-  ["Jobs", "jobs"],
-  ["Rewards", "rewards"],
-  ["Audit Logs", "audit-logs"],
+  ["대시보드", "dashboard"],
+  ["마음카드", "cards"],
+  ["응원 문장", "replies"],
+  ["키워드", "keywords"],
+  ["작업 상태", "jobs"],
+  ["상품 지급", "rewards"],
+  ["감사 로그", "audit-logs"],
 ] as const;
 
 export function AdminLayout() {
@@ -26,19 +26,19 @@ export function AdminLayout() {
     <div className="admin-shell">
       <header className="admin-topbar">
         <div>
-          <p className="admin-eyebrow">Field Admin</p>
+          <p className="admin-eyebrow">현장 관리자</p>
           <h1>{eventSlug}</h1>
         </div>
         <div className="admin-user">
-          <span>{admin?.displayName ?? "Operator"}</span>
+          <span>{admin?.displayName ?? "운영자"}</span>
           <button className="admin-button admin-button--secondary" type="button" onClick={handleLogout}>
-            Logout
+            로그아웃
           </button>
         </div>
       </header>
 
       <div className="admin-layout">
-        <nav className="admin-nav" aria-label="Admin sections">
+        <nav className="admin-nav" aria-label="관리자 메뉴">
           {ADMIN_NAV.map(([label, path]) => (
             <NavLink
               className={({ isActive }) => `admin-nav__link${isActive ? " is-active" : ""}`}

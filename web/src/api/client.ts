@@ -17,7 +17,7 @@ export class ApiClientError extends Error {
 }
 
 export class NetworkError extends Error {
-  constructor(message = "네트워크 연결이 원활하지 않습니다.") {
+  constructor(message = "네트워크 연결을 확인해 주세요.") {
     super(message);
     this.name = "NetworkError";
   }
@@ -70,7 +70,7 @@ export async function requestJson<T>(path: string, options: ApiRequestOptions = 
       method: options.method ?? "GET",
       headers,
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
-      signal: composeSignals(options.signal, options.timeoutMs ?? DEFAULT_TIMEOUT_MS)
+      signal: composeSignals(options.signal, options.timeoutMs ?? DEFAULT_TIMEOUT_MS),
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
@@ -85,12 +85,7 @@ export async function requestJson<T>(path: string, options: ApiRequestOptions = 
   if (!response.ok) {
     const errorBody = parsed as ApiErrorBody | null;
     if (errorBody?.error) {
-      throw new ApiClientError(
-        errorBody.error.message,
-        errorBody.error.code,
-        response.status,
-        errorBody.error.details
-      );
+      throw new ApiClientError(errorBody.error.message, errorBody.error.code, response.status, errorBody.error.details);
     }
     throw new ApiClientError("요청을 처리하지 못했습니다.", "INTERNAL_ERROR", response.status);
   }

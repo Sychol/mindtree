@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getCompletionCode, redeemCompletionCode } from "../../api/admin";
 import { ApiClientError } from "../../api/client";
 import type { AdminCompletionCode } from "../../types/admin";
+import { adminErrorMessage, adminStatusLabel } from "../../utils/adminLabels";
 
 type RewardCodeLookupProps = {
   eventSlug: string;
@@ -10,9 +11,9 @@ type RewardCodeLookupProps = {
 
 function errorText(error: unknown): string {
   if (error instanceof ApiClientError) {
-    return error.message;
+    return adminErrorMessage(error, "완료 코드 요청에 실패했습니다.");
   }
-  return "Request failed.";
+  return "완료 코드 요청에 실패했습니다.";
 }
 
 export function RewardCodeLookup({ eventSlug }: RewardCodeLookupProps) {
@@ -56,7 +57,7 @@ export function RewardCodeLookup({ eventSlug }: RewardCodeLookupProps) {
     <section className="admin-section">
       <div className="admin-form-row">
         <label className="admin-field">
-          Completion code
+          완료 코드
           <input
             className="admin-input"
             onChange={(event) => setCode(event.target.value)}
@@ -65,7 +66,7 @@ export function RewardCodeLookup({ eventSlug }: RewardCodeLookupProps) {
           />
         </label>
         <button className="admin-button admin-button--primary" disabled={!code.trim() || loading} onClick={handleLookup} type="button">
-          Lookup
+          조회
         </button>
       </div>
 
@@ -75,28 +76,28 @@ export function RewardCodeLookup({ eventSlug }: RewardCodeLookupProps) {
         <div className="admin-detail">
           <dl>
             <div>
-              <dt>Code</dt>
+              <dt>코드</dt>
               <dd>{completionCode.code}</dd>
             </div>
             <div>
-              <dt>Status</dt>
-              <dd>{completionCode.status}</dd>
+              <dt>상태</dt>
+              <dd>{adminStatusLabel(completionCode.status)}</dd>
             </div>
             <div>
-              <dt>Issued</dt>
+              <dt>발급 시각</dt>
               <dd>{new Date(completionCode.issuedAt).toLocaleString()}</dd>
             </div>
             <div>
-              <dt>Redeemed</dt>
+              <dt>지급 시각</dt>
               <dd>{completionCode.redeemedAt ? new Date(completionCode.redeemedAt).toLocaleString() : "-"}</dd>
             </div>
           </dl>
           <label className="admin-field">
-            Notes
+            지급 메모
             <input
               className="admin-input"
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="Field booth reward"
+              placeholder="현장 부스 상품 지급"
               value={notes}
             />
           </label>
@@ -106,7 +107,7 @@ export function RewardCodeLookup({ eventSlug }: RewardCodeLookupProps) {
             onClick={handleRedeem}
             type="button"
           >
-            Redeem
+            지급 처리
           </button>
         </div>
       ) : null}

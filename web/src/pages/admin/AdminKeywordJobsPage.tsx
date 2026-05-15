@@ -5,14 +5,21 @@ import { listAdminKeywordJobs, retryAdminKeywordJob } from "../../api/admin";
 import { ApiClientError } from "../../api/client";
 import { KeywordJobStatusBadge } from "../../components/admin/KeywordJobStatusBadge";
 import type { AdminKeywordJobItem } from "../../types/admin";
+import {
+  adminErrorMessage,
+  adminJobErrorLabel,
+  adminProviderLabel,
+  adminSourceTypeLabel,
+  adminStatusLabel,
+} from "../../utils/adminLabels";
 
 const JOB_STATUSES = ["failed", "retry_wait", "pending", "processing", "succeeded", "all"];
 
 function errorText(error: unknown): string {
   if (error instanceof ApiClientError) {
-    return error.message;
+    return adminErrorMessage(error, "키워드 작업 요청에 실패했습니다.");
   }
-  return "Request failed.";
+  return "키워드 작업 요청에 실패했습니다.";
 }
 
 export function AdminKeywordJobsPage() {
@@ -36,7 +43,7 @@ export function AdminKeywordJobsPage() {
   }, [eventSlug, status]);
 
   const retry = async (job: AdminKeywordJobItem) => {
-    await retryAdminKeywordJob(job.id, "operator retry");
+    await retryAdminKeywordJob(job.id, "운영자 재시도");
     await load();
   };
 
@@ -44,13 +51,13 @@ export function AdminKeywordJobsPage() {
     <section className="admin-section">
       <div className="admin-section__header">
         <div>
-          <p className="admin-eyebrow">{items.length} jobs</p>
-          <h2>Keyword jobs</h2>
+          <p className="admin-eyebrow">{items.length}개 작업</p>
+          <h2>키워드 작업 상태</h2>
         </div>
         <select className="admin-select" onChange={(event) => setStatus(event.target.value)} value={status}>
           {JOB_STATUSES.map((value) => (
             <option key={value} value={value}>
-              {value}
+              {adminStatusLabel(value)}
             </option>
           ))}
         </select>
@@ -60,19 +67,19 @@ export function AdminKeywordJobsPage() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Source</th>
-              <th>Status</th>
-              <th>Attempts</th>
-              <th>Provider</th>
-              <th>Error</th>
-              <th>Action</th>
+              <th>원본</th>
+              <th>상태</th>
+              <th>시도</th>
+              <th>처리 방식</th>
+              <th>오류</th>
+              <th>조치</th>
             </tr>
           </thead>
           <tbody>
             {items.map((job) => (
               <tr key={job.id}>
                 <td>
-                  {job.sourceType}
+                  {adminSourceTypeLabel(job.sourceType)}
                   <span className="admin-muted"> {job.sourceId.slice(0, 8)}</span>
                 </td>
                 <td>
@@ -82,10 +89,10 @@ export function AdminKeywordJobsPage() {
                   {job.attempts}/{job.maxAttempts}
                 </td>
                 <td>
-                  {job.provider ?? "-"}
-                  {job.fallbackUsed ? <span className="admin-muted"> fallback</span> : null}
+                  {adminProviderLabel(job.provider)}
+                  {job.fallbackUsed ? <span className="admin-muted"> 대체 추출</span> : null}
                 </td>
-                <td>{job.errorMessage ?? "-"}</td>
+                <td>{adminJobErrorLabel(job.errorMessage)}</td>
                 <td>
                   <button
                     className="admin-button admin-button--secondary"
@@ -93,7 +100,7 @@ export function AdminKeywordJobsPage() {
                     onClick={() => void retry(job)}
                     type="button"
                   >
-                    Retry
+                    재시도
                   </button>
                 </td>
               </tr>

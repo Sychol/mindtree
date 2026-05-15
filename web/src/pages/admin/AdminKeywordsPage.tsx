@@ -4,6 +4,12 @@ import { useParams } from "react-router-dom";
 import { listAdminKeywords, updateAdminKeyword } from "../../api/admin";
 import { ApiClientError } from "../../api/client";
 import type { AdminKeywordItem } from "../../types/admin";
+import {
+  adminCategoryLabel,
+  adminErrorMessage,
+  adminSourceTypeLabel,
+  adminStatusLabel,
+} from "../../utils/adminLabels";
 
 type KeywordDraft = {
   normalizedKeyword: string;
@@ -17,9 +23,9 @@ const STATUSES = ["active", "hidden", "excluded"];
 
 function errorText(error: unknown): string {
   if (error instanceof ApiClientError) {
-    return error.message;
+    return adminErrorMessage(error, "키워드 요청에 실패했습니다.");
   }
-  return "Request failed.";
+  return "키워드 요청에 실패했습니다.";
 }
 
 function initialDraft(keyword: AdminKeywordItem): KeywordDraft {
@@ -83,21 +89,21 @@ export function AdminKeywordsPage() {
     <section className="admin-section">
       <div className="admin-section__header">
         <div>
-          <p className="admin-eyebrow">{items.length} keywords</p>
-          <h2>Keyword management</h2>
+          <p className="admin-eyebrow">{items.length}개 키워드</p>
+          <h2>키워드 관리</h2>
         </div>
         <div className="admin-filter-row">
           <select className="admin-select" onChange={(event) => setStatus(event.target.value)} value={status}>
-            <option value="active">active</option>
-            <option value="hidden">hidden</option>
-            <option value="excluded">excluded</option>
-            <option value="all">all</option>
+            <option value="active">{adminStatusLabel("active")}</option>
+            <option value="hidden">{adminStatusLabel("hidden")}</option>
+            <option value="excluded">{adminStatusLabel("excluded")}</option>
+            <option value="all">{adminStatusLabel("all")}</option>
           </select>
           <select className="admin-select" onChange={(event) => setCategory(event.target.value)} value={category}>
-            <option value="">all categories</option>
+            <option value="">전체 분류</option>
             {CATEGORIES.map((value) => (
               <option key={value} value={value}>
-                {value}
+                {adminCategoryLabel(value)}
               </option>
             ))}
           </select>
@@ -108,12 +114,12 @@ export function AdminKeywordsPage() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Keyword</th>
-              <th>Normalized</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Source</th>
-              <th>Action</th>
+              <th>키워드</th>
+              <th>정규화</th>
+              <th>분류</th>
+              <th>상태</th>
+              <th>원본</th>
+              <th>조치</th>
             </tr>
           </thead>
           <tbody>
@@ -140,7 +146,7 @@ export function AdminKeywordsPage() {
                     >
                       {CATEGORIES.map((value) => (
                         <option key={value} value={value}>
-                          {value}
+                          {adminCategoryLabel(value)}
                         </option>
                       ))}
                     </select>
@@ -153,24 +159,24 @@ export function AdminKeywordsPage() {
                     >
                       {STATUSES.map((value) => (
                         <option key={value} value={value}>
-                          {value}
+                          {adminStatusLabel(value)}
                         </option>
                       ))}
                     </select>
                   </td>
                   <td>
-                    {keyword.sourceType}
+                    {adminSourceTypeLabel(keyword.sourceType)}
                     <span className="admin-muted"> {keyword.sourceId.slice(0, 8)}</span>
                   </td>
                   <td>
                     <input
                       className="admin-input"
                       onChange={(event) => patchDraft(keyword, { reason: event.target.value })}
-                      placeholder="Reason"
+                      placeholder="변경 사유"
                       value={draft.reason}
                     />
                     <button className="admin-button admin-button--primary" onClick={() => void saveKeyword(keyword)} type="button">
-                      Save
+                      저장
                     </button>
                   </td>
                 </tr>

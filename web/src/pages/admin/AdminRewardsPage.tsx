@@ -9,8 +9,8 @@ export function AdminRewardsPage() {
     <section className="admin-section">
       <div className="admin-section__header">
         <div>
-          <p className="admin-eyebrow">Rewards</p>
-          <h2>Completion code lookup</h2>
+          <p className="admin-eyebrow">상품 지급</p>
+          <h2>완료 코드 조회</h2>
         </div>
       </div>
       <RewardCodeLookup eventSlug={eventSlug} />

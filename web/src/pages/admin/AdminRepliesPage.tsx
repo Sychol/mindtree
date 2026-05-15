@@ -5,12 +5,13 @@ import { listAdminReplies, reviewAdminReply } from "../../api/admin";
 import { ApiClientError } from "../../api/client";
 import { ModerationTable } from "../../components/admin/ModerationTable";
 import type { AdminReplyReviewItem, AdminReviewItemBase, AdminReviewRequest } from "../../types/admin";
+import { adminErrorMessage, adminStatusLabel } from "../../utils/adminLabels";
 
 function errorText(error: unknown): string {
   if (error instanceof ApiClientError) {
-    return error.message;
+    return adminErrorMessage(error, "응원 문장 목록을 불러오지 못했습니다.");
   }
-  return "Request failed.";
+  return "응원 문장 목록을 불러오지 못했습니다.";
 }
 
 export function AdminRepliesPage() {
@@ -48,18 +49,18 @@ export function AdminRepliesPage() {
     <section className="admin-section">
       <div className="admin-section__header">
         <div>
-          <p className="admin-eyebrow">{total} items</p>
-          <h2>Reply review</h2>
+          <p className="admin-eyebrow">{total}건</p>
+          <h2>응원 문장 검수</h2>
         </div>
         <select className="admin-select" onChange={(event) => setStatus(event.target.value)} value={status}>
-          <option value="review">review</option>
-          <option value="safe">safe</option>
-          <option value="exclude">exclude</option>
-          <option value="pending">pending</option>
-          <option value="public">public</option>
-          <option value="hidden">hidden</option>
-          <option value="excluded">excluded</option>
-          <option value="all">all</option>
+          <option value="review">{adminStatusLabel("review")}</option>
+          <option value="safe">{adminStatusLabel("safe")}</option>
+          <option value="exclude">{adminStatusLabel("exclude")}</option>
+          <option value="pending">{adminStatusLabel("pending")}</option>
+          <option value="public">{adminStatusLabel("public")}</option>
+          <option value="hidden">{adminStatusLabel("hidden")}</option>
+          <option value="excluded">{adminStatusLabel("excluded")}</option>
+          <option value="all">{adminStatusLabel("all")}</option>
         </select>
       </div>
       {error ? <div className="admin-alert admin-alert--error">{error}</div> : null}

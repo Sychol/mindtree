@@ -1,3 +1,5 @@
+import { adminStatusLabel } from "../../utils/adminLabels";
+
 type KeywordJobStatusBadgeProps = {
   status: string;
 };
@@ -16,5 +18,5 @@ function toneForStatus(status: string): string {
 }
 
 export function KeywordJobStatusBadge({ status }: KeywordJobStatusBadgeProps) {
-  return <span className={`admin-badge admin-badge--${toneForStatus(status)}`}>{status}</span>;
+  return <span className={`admin-badge admin-badge--${toneForStatus(status)}`}>{adminStatusLabel(status)}</span>;
 }

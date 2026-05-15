@@ -5,12 +5,19 @@ import { listAuditLogs } from "../../api/admin";
 import { ApiClientError } from "../../api/client";
 import { AuditLogTable } from "../../components/admin/AuditLogTable";
 import type { AdminAuditLogItem } from "../../types/admin";
+import {
+  adminActionLabel,
+  adminErrorMessage,
+  adminTargetTypeLabel,
+  AUDIT_ACTION_FILTERS,
+  AUDIT_TARGET_FILTERS,
+} from "../../utils/adminLabels";
 
 function errorText(error: unknown): string {
   if (error instanceof ApiClientError) {
-    return error.message;
+    return adminErrorMessage(error, "감사 로그를 불러오지 못했습니다.");
   }
-  return "Request failed.";
+  return "감사 로그를 불러오지 못했습니다.";
 }
 
 export function AdminAuditLogsPage() {
@@ -42,22 +49,24 @@ export function AdminAuditLogsPage() {
     <section className="admin-section">
       <div className="admin-section__header">
         <div>
-          <p className="admin-eyebrow">{items.length} logs</p>
-          <h2>Audit logs</h2>
+          <p className="admin-eyebrow">{items.length}건</p>
+          <h2>감사 로그</h2>
         </div>
         <div className="admin-filter-row">
-          <input
-            className="admin-input"
-            onChange={(event) => setAction(event.target.value)}
-            placeholder="action"
-            value={action}
-          />
-          <input
-            className="admin-input"
-            onChange={(event) => setTargetType(event.target.value)}
-            placeholder="target type"
-            value={targetType}
-          />
+          <select className="admin-select" onChange={(event) => setAction(event.target.value)} value={action}>
+            {AUDIT_ACTION_FILTERS.map((value) => (
+              <option key={value || "all"} value={value}>
+                {adminActionLabel(value)}
+              </option>
+            ))}
+          </select>
+          <select className="admin-select" onChange={(event) => setTargetType(event.target.value)} value={targetType}>
+            {AUDIT_TARGET_FILTERS.map((value) => (
+              <option key={value || "all"} value={value}>
+                {value ? adminTargetTypeLabel(value) : "전체 대상"}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
       {error ? <div className="admin-alert admin-alert--error">{error}</div> : null}
