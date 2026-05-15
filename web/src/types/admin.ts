@@ -132,3 +132,56 @@ export type AdminAuditLogItem = {
   reason?: string | null;
   createdAt: string;
 };
+
+export type AdminResponsesView = "summary" | "wide" | "long";
+
+export type AdminResponseColumn = {
+  key: string;
+  label: string;
+  type: "text" | "answer" | "score" | "risk" | "completion" | string;
+  questionNo?: number | null;
+  questionKey?: string | null;
+  scaleCode?: string | null;
+};
+
+export type AdminResponseRowValue = string | number | boolean | null;
+
+export type AdminResponsesListResponse = {
+  columns: AdminResponseColumn[];
+  rows: Array<Record<string, AdminResponseRowValue>>;
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type AdminResponsesColumnsResponse = {
+  summaryColumns: AdminResponseColumn[];
+  questionColumns: AdminResponseColumn[];
+  scoreColumns: AdminResponseColumn[];
+  riskColumns: AdminResponseColumn[];
+};
+
+export type AdminResponsesListFilters = {
+  view?: AdminResponsesView;
+  status?: string;
+  completedOnly?: boolean;
+  includeScores?: boolean;
+  includeRiskFlags?: boolean;
+  includeCompletionStatus?: boolean;
+  createdFrom?: string;
+  createdTo?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export type AdminResponsesExportRequest = {
+  format: "wide" | "long";
+  includeScores?: boolean;
+  includeRiskFlags?: boolean;
+  includeCompletionStatus?: boolean;
+  status?: string;
+  completedOnly?: boolean;
+  createdFrom?: string | null;
+  createdTo?: string | null;
+  reason: string;
+};

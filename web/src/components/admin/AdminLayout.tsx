@@ -10,6 +10,7 @@ const ADMIN_NAV = [
   ["작업 상태", "jobs"],
   ["상품 지급", "rewards"],
   ["감사 로그", "audit-logs"],
+  ["응답 데이터", "responses"],
 ] as const;
 
 export function AdminLayout() {

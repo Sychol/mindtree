@@ -1,4 +1,4 @@
-import { requestJson } from "./client";
+import { API_BASE_URL, ApiClientError, NetworkError, requestJson } from "./client";
 import { getStoredAdminToken } from "../state/adminAuth";
 import type {
   AdminAuditLogItem,
@@ -14,9 +14,15 @@ import type {
   AdminMeResponse,
   AdminReplyReviewItem,
   AdminReviewRequest,
+  AdminResponsesColumnsResponse,
+  AdminResponsesExportRequest,
+  AdminResponsesListFilters,
+  AdminResponsesListResponse,
 } from "../types/admin";
 
-type ListFilters = {
+type QueryFilters = Record<string, string | number | boolean | null | undefined>;
+
+type ListFilters = QueryFilters & {
   status?: string;
   category?: string;
   action?: string;
@@ -29,7 +35,7 @@ function encoded(value: string): string {
   return encodeURIComponent(value);
 }
 
-function queryString(filters: ListFilters = {}): string {
+function queryString(filters: QueryFilters = {}): string {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
@@ -42,6 +48,67 @@ function queryString(filters: ListFilters = {}): string {
 
 function adminToken(): string | null {
   return getStoredAdminToken();
+}
+
+function adminUrl(path: string): string {
+  return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function filenameFromContentDisposition(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+  const utf8Match = value.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match?.[1]) {
+    return decodeURIComponent(utf8Match[1].replace(/"/g, ""));
+  }
+  const filenameMatch = value.match(/filename="?([^";]+)"?/i);
+  return filenameMatch?.[1] ?? null;
+}
+
+async function requestAdminBlob(path: string, body: unknown): Promise<Blob> {
+  const headers = new Headers();
+  headers.set("Accept", "text/csv");
+  headers.set("Content-Type", "application/json");
+  const token = adminToken();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(adminUrl(path), {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new NetworkError();
+  }
+
+  if (!response.ok) {
+    const text = await response.text();
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed?.error) {
+        throw new ApiClientError(
+          parsed.error.message,
+          parsed.error.code,
+          response.status,
+          parsed.error.details
+        );
+      }
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        throw error;
+      }
+    }
+    throw new ApiClientError("CSV export request failed.", "INTERNAL_ERROR", response.status);
+  }
+
+  const blob = await response.blob();
+  const filename = filenameFromContentDisposition(response.headers.get("Content-Disposition"));
+  return filename ? new File([blob], filename, { type: blob.type }) : blob;
 }
 
 export function adminLogin(email: string, password: string): Promise<AdminLoginResponse> {
@@ -177,5 +244,32 @@ export function listAuditLogs(
   return requestJson<AdminListResponse<AdminAuditLogItem>>(
     `/admin/events/${encoded(eventSlug)}/audit-logs${queryString(filters)}`,
     { authToken: adminToken() }
+  );
+}
+
+export function listAdminResponses(
+  eventSlug: string,
+  filters: AdminResponsesListFilters = {}
+): Promise<AdminResponsesListResponse> {
+  return requestJson<AdminResponsesListResponse>(
+    `/admin/events/${encoded(eventSlug)}/responses${queryString(filters)}`,
+    { authToken: adminToken() }
+  );
+}
+
+export function getAdminResponseColumns(eventSlug: string): Promise<AdminResponsesColumnsResponse> {
+  return requestJson<AdminResponsesColumnsResponse>(
+    `/admin/events/${encoded(eventSlug)}/responses/columns`,
+    { authToken: adminToken() }
+  );
+}
+
+export function exportAdminResponsesCsv(
+  eventSlug: string,
+  request: AdminResponsesExportRequest
+): Promise<Blob> {
+  return requestAdminBlob(
+    `/admin/events/${encoded(eventSlug)}/responses/export.csv`,
+    request
   );
 }
