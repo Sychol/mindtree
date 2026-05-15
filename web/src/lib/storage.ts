@@ -107,3 +107,35 @@ export function clearQuestionTemporaryStorage(eventSlug: string, sessionId: stri
     safeRemove(window.sessionStorage, sessionKey(eventSlug, sessionId, key));
   }
 }
+
+export function getMindCardDraft(eventSlug: string, sessionId: string): string {
+  return safeGet(window.sessionStorage, sessionKey(eventSlug, sessionId, "mindCardDraft")) ?? "";
+}
+
+export function setMindCardDraft(eventSlug: string, sessionId: string, value: string): void {
+  safeSet(window.sessionStorage, sessionKey(eventSlug, sessionId, "mindCardDraft"), value);
+}
+
+export function clearMindCardDraft(eventSlug: string, sessionId: string): void {
+  safeRemove(window.sessionStorage, sessionKey(eventSlug, sessionId, "mindCardDraft"));
+}
+
+export function getReplyDraft(eventSlug: string, sessionId: string): string {
+  return safeGet(window.sessionStorage, sessionKey(eventSlug, sessionId, "replyDraft")) ?? "";
+}
+
+export function setReplyDraft(eventSlug: string, sessionId: string, value: string): void {
+  safeSet(window.sessionStorage, sessionKey(eventSlug, sessionId, "replyDraft"), value);
+}
+
+export function clearReplyDraft(eventSlug: string, sessionId: string): void {
+  safeRemove(window.sessionStorage, sessionKey(eventSlug, sessionId, "replyDraft"));
+}
+
+export function getSelectedCardId(eventSlug: string, sessionId: string): string | undefined {
+  return safeGet(window.sessionStorage, sessionKey(eventSlug, sessionId, "selectedCardId")) ?? undefined;
+}
+
+export function setSelectedCardId(eventSlug: string, sessionId: string, selectedCardId: string): void {
+  safeSet(window.sessionStorage, sessionKey(eventSlug, sessionId, "selectedCardId"), selectedCardId);
+}

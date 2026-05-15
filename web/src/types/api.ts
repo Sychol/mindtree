@@ -12,4 +12,5 @@ export type ApiRequestOptions = {
   signal?: AbortSignal;
   timeoutMs?: number;
   idempotencyKey?: string;
+  authToken?: string | null;
 };

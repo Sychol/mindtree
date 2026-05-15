@@ -60,6 +60,9 @@ export async function requestJson<T>(path: string, options: ApiRequestOptions = 
   if (options.idempotencyKey) {
     headers.set("Idempotency-Key", options.idempotencyKey);
   }
+  if (options.authToken) {
+    headers.set("Authorization", `Bearer ${options.authToken}`);
+  }
 
   let response: Response;
   try {

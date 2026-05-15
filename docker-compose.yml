@@ -19,7 +19,8 @@ services:
 
   api:
     build:
-      context: ./api
+      context: .
+      dockerfile: api/Dockerfile
     container_name: maeumnamu-api
     env_file:
       - .env

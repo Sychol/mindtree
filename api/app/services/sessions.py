@@ -9,8 +9,12 @@ from app.core.security import generate_resume_token, hash_token
 from app.models.enums import EventStatus, SessionStatus
 from app.models.event import Event
 from app.models.session import Session
+from app.repositories.card_selections import CardSelectionRepository
+from app.repositories.cards import MindCardRepository
+from app.repositories.completion_codes import CompletionCodeRepository
 from app.repositories.consent import ConsentRepository
 from app.repositories.events import EventRepository
+from app.repositories.replies import ReplyRepository
 from app.repositories.sessions import SessionRepository
 from app.schemas.sessions import (
     CreateOrResumeSessionRequest,
@@ -131,6 +135,13 @@ def get_session_state(db: SQLAlchemySession, session_id: UUID) -> SessionRespons
         session.status,
         SessionStatus.CONSENTED.value,
     )
+    mind_card_count = MindCardRepository(db).count_by_session_id(session.id)
+    selected_card = CardSelectionRepository(db).get_by_session_id(session.id) is not None
+    reply_created = (
+        ReplyRepository(db).count_by_session_id(session.id) > 0
+        or status_at_least(session.status, SessionStatus.REPLY_CREATED.value)
+    )
+    completion_code_issued = CompletionCodeRepository(db).get_by_session_id(session.id) is not None
 
     return SessionResponse(
         session=build_session_info(session, event),
@@ -144,9 +155,9 @@ def get_session_state(db: SQLAlchemySession, session_id: UUID) -> SessionRespons
                 session.status,
                 SessionStatus.SUMMARY_VIEWED.value,
             ),
-            mind_card_count=0,
-            selected_card=False,
-            reply_created=False,
-            completion_code_issued=False,
+            mind_card_count=mind_card_count,
+            selected_card=selected_card,
+            reply_created=reply_created,
+            completion_code_issued=completion_code_issued,
         ),
     )

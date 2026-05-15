@@ -78,3 +78,121 @@ TODO:
 - Phase 05에서 `web/package.json`, Vite 설정, 참가자 화면을 구현한다.
 - Phase 09에서 TV display와 SSE 연결을 구현한다.
 - Phase 10에서 관리자 화면을 구현한다.
+
+## Phase 11 현장 리허설 실행 절차
+
+이 절차는 local/dev 리허설 기준이다. 실제 운영 secret, API key, DB password, 관리자 실제 비밀번호는 코드나 문서에 넣지 말고 배포 환경에서 별도로 주입한다.
+
+### 사전 요구사항
+
+- Docker Desktop과 Docker Compose
+- Python 3.12 이상
+- Node.js와 npm
+- `.env`는 `.env.example`을 복사한 뒤 local/dev 값만 채운다.
+
+```bash
+cp .env.example .env
+```
+
+PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+### Docker Compose 실행
+
+```bash
+docker compose config
+docker compose build
+docker compose up -d postgres api web
+docker compose ps
+```
+
+`docker compose config` 출력에는 `.env` 값이 포함될 수 있으므로 외부에 공유하지 않는다. DB volume 삭제가 필요한 명령, 특히 `docker compose down -v`는 운영 데이터가 있을 때 실행하지 않는다.
+
+### Migration과 seed
+
+```bash
+docker compose exec api alembic upgrade head
+docker compose exec api python -m app.scripts.seed_dev
+```
+
+문항 seed만 다시 확인해야 할 때:
+
+```bash
+docker compose exec api python -m app.scripts.seed_questions --event-slug fire-expo-2026
+```
+
+관리자 계정 bootstrap은 `.env`의 `ADMIN_BOOTSTRAP_EMAIL`과 `ADMIN_BOOTSTRAP_PASSWORD`가 비어 있지 않을 때만 생성된다.
+
+```bash
+docker compose exec api python -m app.scripts.bootstrap_admin
+```
+
+### Keyword worker와 smoke test
+
+```bash
+docker compose exec api python -m app.scripts.run_keyword_worker --once
+docker compose exec api python -m app.scripts.run_smoke_tests
+```
+
+LLM 없이 운영 가능성을 먼저 확인하려면 `.env`를 다음처럼 둔다.
+
+```txt
+LLM_ENABLED=false
+LLM_PROVIDER=disabled
+KEYWORD_FALLBACK_ENABLED=true
+```
+
+mock 리허설은 실제 외부 API key 없이 다음처럼 확인한다.
+
+```txt
+LLM_ENABLED=true
+LLM_PROVIDER=mock
+KEYWORD_FALLBACK_ENABLED=true
+```
+
+### 접속 URL
+
+- Participant: `http://localhost:5173/e/fire-expo-2026`
+- TV Display: `http://localhost:5173/display/fire-expo-2026`
+- Admin: `http://localhost:5173/admin/login`
+- API Health: `http://localhost:8000/api/health`
+
+### 테스트
+
+Backend:
+
+```bash
+cd api
+python -m pytest
+```
+
+Phase 11 focused:
+
+```bash
+cd api
+python -m pytest tests/test_field_flow.py tests/test_privacy_display_contract.py tests/test_completion_redeem_idempotency.py tests/test_llm_modes.py tests/test_sse_reconnect_contract.py
+```
+
+Frontend:
+
+```bash
+cd web
+npm install
+npm run build
+```
+
+### 수동 리허설 체크리스트
+
+1. 모바일에서 `Participant` URL로 참가자 플로우 1회를 완료한다.
+2. 완료 코드가 표시되는지 확인한다.
+3. `TV Display`에서 키워드가 표시되는지 확인한다.
+4. API 서버 재시작 또는 일시 차단 후 TV가 마지막 snapshot을 유지하고 재연결되는지 확인한다.
+5. 관리자 화면에서 완료 코드를 조회하고 지급 처리한다.
+6. 같은 완료 코드를 다시 지급하려고 할 때 중복 지급 에러가 나는지 확인한다.
+7. 관리자 화면에서 공개 문장을 숨긴 뒤 TV snapshot에서 제외되는지 확인한다.
+8. `LLM_ENABLED=false`와 `KEYWORD_FALLBACK_ENABLED=true`에서도 참가자 완료와 키워드 처리가 가능한지 확인한다.
+9. 모바일 네트워크 차단 후 문항 제출 재시도와 새로고침 복구를 확인한다.
+10. 이벤트 종료 후 `closed` 처리와 QR/TV/관리자 접근 정책을 현장 책임자와 확인한다.

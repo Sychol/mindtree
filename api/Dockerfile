@@ -9,13 +9,14 @@ ENV LANG=C.UTF-8 \
 
 WORKDIR /app
 
-COPY requirements.txt ./
+COPY api/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY alembic.ini ./
-COPY alembic ./alembic
-COPY app ./app
-COPY tests ./tests
+COPY api/alembic.ini ./
+COPY api/alembic ./alembic
+COPY api/app ./app
+COPY api/tests ./tests
+COPY docs/data ./docs/data
 
 EXPOSE 8000
 

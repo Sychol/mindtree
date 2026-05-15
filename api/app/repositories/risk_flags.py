@@ -45,3 +45,28 @@ class RiskFlagRepository(BaseRepository[RiskFlag]):
         self.db.add(risk_flag)
         self.db.flush()
         return risk_flag
+
+    def mark_crisis_expression_detected(
+        self,
+        *,
+        event_id: UUID,
+        session_id: UUID,
+        reason: str,
+    ) -> RiskFlag:
+        risk_flag = self.get_by_session_id(session_id)
+        if risk_flag is None:
+            risk_flag = RiskFlag(event_id=event_id, session_id=session_id)
+
+        details = dict(risk_flag.details or {})
+        safety_filter_details = dict(details.get("safety_filter") or {})
+        safety_filter_details["crisis_expression_detected"] = True
+        safety_filter_details["reason"] = reason
+        details["safety_filter"] = safety_filter_details
+
+        risk_flag.crisis_expression_detected = True
+        risk_flag.public_restriction = True
+        risk_flag.help_notice_required = True
+        risk_flag.details = details
+        self.db.add(risk_flag)
+        self.db.flush()
+        return risk_flag
