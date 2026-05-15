@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Any
 
-from app.services.scoring import RULE_VERSION, ScaleScoreResult
+from app.services.scoring import PHQ9_ITEM9_QUESTION_NO, RULE_VERSION, ScaleScoreResult
+
+KMIES_HIGH_SIGNAL_THRESHOLD = 25
 
 
 @dataclass(frozen=True)
@@ -31,10 +33,13 @@ def calculate_risk_flags(scale_scores: list[ScaleScoreResult]) -> RiskFlagResult
 
     phq9_item9_positive = phq9_item9_score >= 1
     trauma_high_signal = pcl5_total_score >= 34
-    moral_injury_high_signal = kmies_total_score >= 37
+    # TODO: K-MIES 6-item high-signal threshold is an operational placeholder pending final review.
+    moral_injury_high_signal = kmies_total_score >= KMIES_HIGH_SIGNAL_THRESHOLD
 
     details: dict[str, Any] = {
         "kscs_level": kscs.severity_level,
+        "phq9_item9_question_no": PHQ9_ITEM9_QUESTION_NO,
+        "kmies_high_signal_threshold": KMIES_HIGH_SIGNAL_THRESHOLD,
     }
     if phq9_total_score >= 16:
         details["phq9_high_instability_signal"] = True

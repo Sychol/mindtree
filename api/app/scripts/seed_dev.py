@@ -34,6 +34,7 @@ class SeedDevResult:
     event_created: bool
     questions_created: int
     questions_updated: int
+    questions_deleted_stale: int
     admin_created: bool
     admin_skipped: bool
     cards_created: int
@@ -202,6 +203,7 @@ def seed_dev(db: Session) -> SeedDevResult:
         event_created=event_created,
         questions_created=question_result["created"],
         questions_updated=question_result["updated"],
+        questions_deleted_stale=question_result["deletedStale"],
         admin_created=admin_created,
         admin_skipped=admin_skipped,
         cards_created=cards_created,
@@ -218,6 +220,7 @@ def main() -> None:
         f"event_created={result.event_created} "
         f"questions_created={result.questions_created} "
         f"questions_updated={result.questions_updated} "
+        f"questions_deleted_stale={result.questions_deleted_stale} "
         f"admin_created={result.admin_created} "
         f"admin_skipped={result.admin_skipped} "
         f"cards_created={result.cards_created} "

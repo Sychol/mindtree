@@ -11,6 +11,7 @@ from app.models.event import Event
 from app.models.risk import RiskFlag
 from app.models.score import ScaleScore
 from app.models.session import Session as EventSession
+from app.services.scoring import RULE_VERSION
 from app.services.llm.base import LlmSummaryRequest
 from app.services.llm.provider import get_summary_llm_provider
 
@@ -39,7 +40,7 @@ def _create_session_with_results(
     for scale_code, raw_score, severity_level in [
         ("phq9", Decimal("21"), "severe_depression_score_range"),
         ("pcl5", Decimal("35"), "high_risk"),
-        ("kmies", Decimal("40"), "high"),
+        ("kmies", Decimal("30"), "high"),
         ("kscs", Decimal("2.0"), "low"),
     ]:
         db_session.add(
@@ -50,7 +51,7 @@ def _create_session_with_results(
                 raw_score=raw_score,
                 severity_level=severity_level,
                 sub_scores={},
-                rule_version="v2-2026-05-13-scale-cutoffs",
+                rule_version=RULE_VERSION,
             )
         )
     db_session.add(
@@ -64,7 +65,7 @@ def _create_session_with_results(
             public_restriction=True,
             help_notice_required=True,
             details={"kscs_level": "low"},
-            rule_version="v2-2026-05-13-scale-cutoffs",
+            rule_version=RULE_VERSION,
         )
     )
     db_session.commit()

@@ -99,6 +99,7 @@ def _answer_value(question: dict[str, Any]) -> Any:
 
 
 def _answers_payload(questions: list[dict[str, Any]]) -> dict[str, Any]:
+    last_question_no = questions[-1]["questionNo"] if questions else None
     return {
         "answers": [
             {
@@ -107,7 +108,7 @@ def _answers_payload(questions: list[dict[str, Any]]) -> dict[str, Any]:
             }
             for question in questions
         ],
-        "clientProgress": {"lastQuestionNo": 77},
+        "clientProgress": {"lastQuestionNo": last_question_no},
     }
 
 
@@ -152,9 +153,9 @@ def run_smoke_flow() -> None:
             step="questions",
         )
         questions = questions_response["questions"]
-        if len(questions) != 77:
-            raise SmokeFailure(f"expected 77 questions, got {len(questions)}")
-        print("ok questions=77")
+        if not questions:
+            raise SmokeFailure("expected questions, got 0")
+        print(f"ok questions={len(questions)}")
 
         answers = _request(
             ctx,

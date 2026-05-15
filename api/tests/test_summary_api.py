@@ -12,6 +12,7 @@ from app.models.risk import RiskFlag
 from app.models.score import ScaleScore
 from app.models.session import Session as EventSession
 from app.models.summary import Summary
+from app.services.scoring import RULE_VERSION
 
 
 def _create_session_with_results(
@@ -48,7 +49,7 @@ def _create_session_with_results(
                     raw_score=raw_score,
                     severity_level=severity_level,
                     sub_scores={},
-                    rule_version="v2-2026-05-13-scale-cutoffs",
+                    rule_version=RULE_VERSION,
                 )
             )
 
@@ -64,7 +65,7 @@ def _create_session_with_results(
                 public_restriction=False,
                 help_notice_required=False,
                 details={"kscs_level": "low"},
-                rule_version="v2-2026-05-13-scale-cutoffs",
+                rule_version=RULE_VERSION,
             )
         )
 

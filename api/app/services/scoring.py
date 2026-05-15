@@ -6,13 +6,14 @@ from uuid import UUID
 from app.models.answer import Answer
 from app.models.question import Question
 
-RULE_VERSION = "v2-2026-05-13-scale-cutoffs"
-K_SCS_REVERSE_QUESTION_NOS = [53, 54, 56, 57, 59, 65, 66, 70, 71, 74, 76]
+RULE_VERSION = "v3-2026-05-15-final-questions"
+K_SCS_REVERSE_QUESTION_NOS = [50, 53, 57, 58, 60, 61]
 
-PHQ9_QUESTION_NOS = list(range(14, 23))
-PCL5_QUESTION_NOS = list(range(23, 43))
-KMIES_QUESTION_NOS = list(range(43, 52))
-KSCS_QUESTION_NOS = list(range(52, 78))
+PHQ9_QUESTION_NOS = list(range(21, 30))
+PCL5_QUESTION_NOS = list(range(30, 50))
+KMIES_QUESTION_NOS = list(range(15, 21))
+KSCS_QUESTION_NOS = list(range(50, 62))
+PHQ9_ITEM9_QUESTION_NO = 29
 
 
 @dataclass(frozen=True)
@@ -73,9 +74,10 @@ def get_severity_level(scale_code: str, score: Decimal) -> str:
         return "high_risk"
 
     if scale_code == "kmies":
-        if score <= Decimal("18"):
+        # TODO: K-MIES 6-item cutoffs are operational placeholders pending final review.
+        if score <= Decimal("12"):
             return "low"
-        if score <= Decimal("36"):
+        if score <= Decimal("24"):
             return "moderate"
         return "high"
 
@@ -111,7 +113,7 @@ def _sum_score(question_nos: list[int], answer_by_no: dict[int, Answer]) -> Deci
 
 def calculate_phq9(answer_by_no: dict[int, Answer]) -> ScaleScoreResult:
     total = _sum_score(PHQ9_QUESTION_NOS, answer_by_no)
-    item9_score = _decimal(answer_by_no[22].score_value)
+    item9_score = _decimal(answer_by_no[PHQ9_ITEM9_QUESTION_NO].score_value)
 
     return ScaleScoreResult(
         scale_code="phq9",
@@ -119,6 +121,7 @@ def calculate_phq9(answer_by_no: dict[int, Answer]) -> ScaleScoreResult:
         severity_level=get_severity_level("phq9", total),
         sub_scores={
             "total_score": int(total),
+            "item9_question_no": PHQ9_ITEM9_QUESTION_NO,
             "item9_score": int(item9_score),
             "question_nos": PHQ9_QUESTION_NOS,
         },
