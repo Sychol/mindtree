@@ -50,11 +50,10 @@ export type ConsentRequest = {
 };
 
 export type ConsentAcceptedItems = {
-  eventIsNotDiagnosis: boolean;
-  anonymousKeywordDisplay: boolean;
-  cardMayBeShownAnonymously: boolean;
-  noIdentifyingInfo: boolean;
-  adminModeration: boolean;
+  researchParticipationConsent: boolean;
+  personalDataUseConsent: boolean;
+  sensitiveInfoConsent: boolean;
+  deidentifiedAiRagUseConsent: boolean;
 };
 
 export type ConsentResponse = {

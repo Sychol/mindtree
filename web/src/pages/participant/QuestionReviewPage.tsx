@@ -69,7 +69,7 @@ export function QuestionReviewPage() {
     setServerMissing(missing);
     if (missing.length === 0 && eventSlug && sessionId) {
       clearQuestionTemporaryStorage(eventSlug, sessionId);
-      navigate(`/e/${encodeURIComponent(eventSlug)}/summary`, { replace: true });
+      navigate(`/e/${encodeURIComponent(eventSlug)}/submit-result`, { replace: true });
     }
   }
 

@@ -1,0 +1,105 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Soft green hills background for Maeumnamu display">
+  <defs>
+    <linearGradient id="sky" x1="960" y1="0" x2="960" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFBEF"/>
+      <stop offset="0.44" stop-color="#FFF8DE"/>
+      <stop offset="1" stop-color="#EAF7D8"/>
+    </linearGradient>
+
+    <radialGradient id="sunGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(296 338) rotate(52.5) scale(555 380)">
+      <stop stop-color="#FFF4A8" stop-opacity="0.58"/>
+      <stop offset="0.42" stop-color="#FFEFA2" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FFFDF2" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="hillBack" x1="960" y1="604" x2="960" y2="998" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7F0CD"/>
+      <stop offset="1" stop-color="#A9DDB3"/>
+    </linearGradient>
+
+    <linearGradient id="hillMid" x1="958" y1="671" x2="958" y2="1068" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DFF3B8"/>
+      <stop offset="1" stop-color="#8FD19E"/>
+    </linearGradient>
+
+    <linearGradient id="hillFront" x1="960" y1="760" x2="960" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECF2A8"/>
+      <stop offset="0.54" stop-color="#CFE98D"/>
+      <stop offset="1" stop-color="#7FBD7F"/>
+    </linearGradient>
+
+    <linearGradient id="leafGrad" x1="0" y1="0" x2="20" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B9DD6C"/>
+      <stop offset="1" stop-color="#4F9C56"/>
+    </linearGradient>
+
+    <filter id="softBlur" x="-20" y="-20" width="80" height="80" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+
+    <filter id="mist" x="0" y="0" width="1920" height="1080" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+
+    <symbol id="leaf" viewBox="0 0 28 42">
+      <path d="M14 40C10 27 8 18 13 10C17 4 23 2 27 2C28 10 25 18 20 24C16 29 14 34 14 40Z" fill="url(#leafGrad)" fill-opacity="0.82"/>
+      <path d="M14 39C15 27 18 17 25 5" stroke="#2F8747" stroke-width="1.4" stroke-linecap="round" opacity="0.35"/>
+    </symbol>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <rect width="1920" height="1080" fill="url(#sunGlow)"/>
+
+  <!-- soft background mist -->
+  <g filter="url(#mist)" opacity="0.42">
+    <ellipse cx="386" cy="711" rx="318" ry="83" fill="#FFFFFF"/>
+    <ellipse cx="1292" cy="621" rx="356" ry="92" fill="#FFFFFF"/>
+  </g>
+
+  <!-- distant hills -->
+  <path d="M0 735C143 674 254 647 409 681C574 718 626 811 797 794C963 778 1024 674 1180 653C1374 627 1484 746 1642 729C1770 715 1840 672 1920 640V1080H0V735Z" fill="url(#hillBack)" opacity="0.86"/>
+  <path d="M0 830C130 760 247 715 405 756C573 800 653 875 826 843C987 813 1068 723 1244 725C1404 727 1516 835 1671 822C1788 812 1858 772 1920 737V1080H0V830Z" fill="url(#hillMid)" opacity="0.92"/>
+  <path d="M0 914C156 822 310 793 501 829C677 862 767 930 960 925C1156 920 1262 838 1442 836C1632 834 1776 902 1920 841V1080H0V914Z" fill="url(#hillFront)"/>
+
+  <!-- left foreground plants -->
+  <g opacity="0.7">
+    <path d="M85 1055C89 1012 95 967 132 926" stroke="#2D8C52" stroke-width="5" stroke-linecap="round"/>
+    <use href="#leaf" x="114" y="917" width="32" height="48" transform="rotate(18 130 941)"/>
+    <use href="#leaf" x="73" y="957" width="26" height="39" transform="rotate(-37 86 976)"/>
+    <use href="#leaf" x="123" y="984" width="25" height="38" transform="rotate(48 136 1003)"/>
+    <path d="M168 1064C164 1017 162 986 188 947" stroke="#3D9B5B" stroke-width="4" stroke-linecap="round"/>
+    <use href="#leaf" x="184" y="934" width="25" height="38" transform="rotate(22 196 953)"/>
+    <use href="#leaf" x="144" y="974" width="23" height="34" transform="rotate(-38 156 991)"/>
+  </g>
+
+  <!-- right foreground plants -->
+  <g opacity="0.74">
+    <path d="M1770 1060C1775 1010 1788 961 1832 915" stroke="#2E8C53" stroke-width="5" stroke-linecap="round"/>
+    <use href="#leaf" x="1830" y="905" width="31" height="46" transform="rotate(34 1846 928)"/>
+    <use href="#leaf" x="1756" y="968" width="27" height="40" transform="rotate(-42 1769 988)"/>
+    <use href="#leaf" x="1822" y="987" width="25" height="37" transform="rotate(56 1835 1006)"/>
+    <path d="M1694 1067C1691 1023 1695 979 1721 939" stroke="#58A865" stroke-width="4" stroke-linecap="round"/>
+    <use href="#leaf" x="1720" y="930" width="24" height="36" transform="rotate(26 1732 948)"/>
+    <use href="#leaf" x="1674" y="981" width="23" height="34" transform="rotate(-30 1686 998)"/>
+  </g>
+
+  <!-- top leafy bokeh accents -->
+  <g opacity="0.28" filter="url(#softBlur)">
+    <use href="#leaf" x="68" y="40" width="42" height="63" transform="rotate(-68 89 71)"/>
+    <use href="#leaf" x="124" y="26" width="37" height="56" transform="rotate(-28 143 54)"/>
+    <use href="#leaf" x="177" y="76" width="34" height="50" transform="rotate(18 194 101)"/>
+    <use href="#leaf" x="1690" y="26" width="42" height="63" transform="rotate(48 1711 57)"/>
+    <use href="#leaf" x="1760" y="42" width="37" height="56" transform="rotate(75 1779 70)"/>
+    <use href="#leaf" x="1838" y="92" width="34" height="50" transform="rotate(28 1855 117)"/>
+  </g>
+
+  <!-- soft sparkles -->
+  <g opacity="0.55">
+    <circle cx="178" cy="536" r="4" fill="#FFFFFF"/>
+    <circle cx="245" cy="618" r="2.5" fill="#FFFFFF"/>
+    <circle cx="1596" cy="650" r="3.5" fill="#FFFFFF"/>
+    <circle cx="1705" cy="734" r="2.8" fill="#FFFFFF"/>
+    <circle cx="116" cy="704" r="2.5" fill="#FFFFFF"/>
+    <circle cx="1514" cy="558" r="2.4" fill="#FFFFFF"/>
+  </g>
+</svg>

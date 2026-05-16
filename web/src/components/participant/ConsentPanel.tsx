@@ -11,49 +11,49 @@ type ConsentPanelProps = {
 
 const CONSENT_ITEMS: Array<{
   key: keyof ConsentAcceptedItems;
+  title: string;
   text: string;
 }> = [
   {
-    key: "eventIsNotDiagnosis",
-    text: "본 이벤트는 진단이나 치료가 아닌 체험형 마음 점검입니다."
+    key: "researchParticipationConsent",
+    title: "[필수] 연구 참여 동의",
+    text: "연구의 목적, 절차, 예상 소요시간, 예상되는 불편감, 연구 참여 중단 및 철회 가능성에 대한 설명을 확인하였으며, 자발적으로 본 연구에 참여하는 것에 동의합니다."
   },
   {
-    key: "anonymousKeywordDisplay",
-    text: "TV에는 원문이 아닌 익명 키워드만 표시됩니다."
+    key: "personalDataUseConsent",
+    title: "[필수] 개인정보 수집·이용 동의",
+    text: "연령대, 성별, 직무 관련 정보, 사건 경험 관련 정보, 설문 응답자료를 연구 목적의 통계 분석, 학술연구 및 서비스 개선에 이용하는 것에 동의합니다."
   },
   {
-    key: "cardMayBeShownAnonymously",
-    text: "마음카드는 익명 상태로 다른 참가자에게 보일 수 있습니다."
+    key: "sensitiveInfoConsent",
+    title: "[필수] 민감정보 처리 동의",
+    text: "우울감, 자해 관련 생각, 외상 경험, 심리적 고통, 상담·병원 이용 경험 등 건강 또는 정신건강과 관련될 수 있는 문항이 포함되어 있음을 확인하였으며, 해당 정보를 연구 목적의 분석에 이용하는 것에 동의합니다."
   },
   {
-    key: "noIdentifyingInfo",
-    text: "실명, 소속, 연락처, 구체적 장소, 날짜, 사건명은 입력하지 않습니다."
-  },
-  {
-    key: "adminModeration",
-    text: "관리자는 개인정보, 위기 표현, 부적절 표현을 수정, 숨김, 삭제할 수 있습니다."
+    key: "deidentifiedAiRagUseConsent",
+    title: "[필수] 비식별 자료의 AI 학습/RAG 활용 동의",
+    text: "응답자료가 익명화·가명화 등 비식별 처리된 후 AI 상담 서비스 리본톡의 성능 개선, AI 학습 데이터 구축 또는 RAG 데이터 구축에 활용될 수 있음에 동의합니다."
   }
 ];
 
 export const EMPTY_CONSENT: ConsentAcceptedItems = {
-  eventIsNotDiagnosis: false,
-  anonymousKeywordDisplay: false,
-  cardMayBeShownAnonymously: false,
-  noIdentifyingInfo: false,
-  adminModeration: false
+  researchParticipationConsent: false,
+  personalDataUseConsent: false,
+  sensitiveInfoConsent: false,
+  deidentifiedAiRagUseConsent: false
 };
 
 export function ConsentPanel({ value, pending, onChange, onSubmit }: ConsentPanelProps) {
   const allChecked = Object.values(value).every(Boolean);
 
   return (
-    <section className="panel">
-      <NoticeBox title="참여 전 확인" tone="info">
-        <p>아래 내용을 확인한 뒤 문항 응답을 시작합니다.</p>
+    <section className="panel consent-check-panel">
+      <NoticeBox title="필수 동의 항목" tone="info">
+        <p>아래 4개 항목에 모두 동의해야 설문을 시작할 수 있습니다.</p>
       </NoticeBox>
       <div className="check-list">
         {CONSENT_ITEMS.map((item) => (
-          <label key={item.key} className="check-row">
+          <label key={item.key} className="check-row consent-checkbox-card">
             <input
               type="checkbox"
               checked={value[item.key]}
@@ -64,12 +64,15 @@ export function ConsentPanel({ value, pending, onChange, onSubmit }: ConsentPane
                 })
               }
             />
-            <span>{item.text}</span>
+            <span>
+              <strong>{item.title}</strong>
+              {item.text}
+            </span>
           </label>
         ))}
       </div>
       <Button fullWidth disabled={!allChecked || pending} onClick={onSubmit}>
-        {pending ? "저장 중" : "동의하고 시작"}
+        {pending ? "저장 중" : "모두 동의하고 설문 시작"}
       </Button>
     </section>
   );

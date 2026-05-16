@@ -1,5 +1,6 @@
 import type { DraftAnswerMap } from "../types/answer";
 import type { Question } from "../types/question";
+import type { SurveySectionId } from "./surveySections";
 
 const PREFIX = "maeumnamu";
 
@@ -102,8 +103,27 @@ export function setCurrentQuestionNo(eventSlug: string, sessionId: string, quest
   safeSet(window.sessionStorage, sessionKey(eventSlug, sessionId, "lastLocalUpdatedAt"), new Date().toISOString());
 }
 
+export function getCurrentSurveySectionId(
+  eventSlug: string,
+  sessionId: string
+): SurveySectionId | undefined {
+  return (
+    safeGet(window.sessionStorage, sessionKey(eventSlug, sessionId, "currentSurveySectionId")) ??
+    undefined
+  ) as SurveySectionId | undefined;
+}
+
+export function setCurrentSurveySectionId(
+  eventSlug: string,
+  sessionId: string,
+  sectionId: SurveySectionId
+): void {
+  safeSet(window.sessionStorage, sessionKey(eventSlug, sessionId, "currentSurveySectionId"), sectionId);
+  safeSet(window.sessionStorage, sessionKey(eventSlug, sessionId, "lastLocalUpdatedAt"), new Date().toISOString());
+}
+
 export function clearQuestionTemporaryStorage(eventSlug: string, sessionId: string): void {
-  for (const key of ["questionDraft", "currentQuestionNo", "lastLocalUpdatedAt"]) {
+  for (const key of ["questionDraft", "currentQuestionNo", "currentSurveySectionId", "lastLocalUpdatedAt"]) {
     safeRemove(window.sessionStorage, sessionKey(eventSlug, sessionId, key));
   }
 }

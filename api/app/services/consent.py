@@ -11,27 +11,46 @@ from app.repositories.sessions import SessionRepository
 from app.schemas.sessions import ConsentRequest, ConsentResponse
 
 REQUIRED_ACCEPTED_ITEMS = {
-    "eventIsNotDiagnosis",
-    "anonymousKeywordDisplay",
-    "cardMayBeShownAnonymously",
-    "noIdentifyingInfo",
-    "adminModeration",
+    "researchParticipationConsent",
+    "personalDataUseConsent",
+    "sensitiveInfoConsent",
+    "deidentifiedAiRagUseConsent",
+}
+
+LEGACY_ACCEPTED_ITEM_MAPPING = {
+    "eventIsNotDiagnosis": "researchParticipationConsent",
+    "noIdentifyingInfo": "personalDataUseConsent",
+    "adminModeration": "sensitiveInfoConsent",
+    "anonymousKeywordDisplay": "deidentifiedAiRagUseConsent",
 }
 
 
-def _validate_required_items(accepted_items: dict[str, bool]) -> None:
+def _normalise_accepted_items(accepted_items: dict[str, bool]) -> dict[str, bool]:
     missing_or_false = [
         item
         for item in sorted(REQUIRED_ACCEPTED_ITEMS)
         if accepted_items.get(item) is not True
     ]
-    if missing_or_false:
-        raise AppError(
-            ErrorCode.BAD_REQUEST,
-            "필수 동의 항목을 모두 확인해야 합니다.",
-            status.HTTP_400_BAD_REQUEST,
-            details={"items": missing_or_false},
-        )
+    if not missing_or_false:
+        return {item: True for item in sorted(REQUIRED_ACCEPTED_ITEMS)}
+
+    legacy_missing_or_false = [
+        item
+        for item in sorted(LEGACY_ACCEPTED_ITEM_MAPPING)
+        if accepted_items.get(item) is not True
+    ]
+    if not legacy_missing_or_false:
+        return {
+            current_item: True
+            for current_item in sorted(LEGACY_ACCEPTED_ITEM_MAPPING.values())
+        }
+
+    raise AppError(
+        ErrorCode.BAD_REQUEST,
+        "필수 동의 항목을 모두 확인해야 합니다.",
+        status.HTTP_400_BAD_REQUEST,
+        details={"items": missing_or_false},
+    )
 
 
 def accept_consent(
@@ -50,7 +69,7 @@ def accept_consent(
         )
 
     session, event = row
-    _validate_required_items(request.accepted_items)
+    accepted_items = _normalise_accepted_items(request.accepted_items)
 
     if request.consent_version != event.consent_version:
         raise AppError(
@@ -75,7 +94,7 @@ def accept_consent(
             event_id=event.id,
             session_id=session.id,
             consent_version=request.consent_version,
-            accepted_items=request.accepted_items,
+            accepted_items=accepted_items,
             ip_hash=hash_optional_value(ip_address),
             user_agent_hash=hash_optional_value(user_agent),
         )

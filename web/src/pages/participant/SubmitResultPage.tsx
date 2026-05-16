@@ -9,14 +9,15 @@ export function SubmitResultPage() {
   return (
     <main className="screen">
       <div className="screen__header">
-        <p className="eyebrow">저장 완료</p>
-        <h1>문항 응답이 저장되었습니다.</h1>
+        <p className="eyebrow">섹션 8 / 8</p>
+        <h1>참여해주셔서 감사합니다.</h1>
+        <p>응답이 저장되었습니다.</p>
       </div>
       <NoticeBox tone="safe">
-        <p>다음 단계에서는 마음신호 요약을 확인하게 됩니다.</p>
+        <p>이제 마음신호 요약을 확인할 수 있습니다.</p>
       </NoticeBox>
       <Link className="button button--primary button--full" to={summaryPath}>
-        다음 단계로 이동
+        마음신호 요약 보기
       </Link>
     </main>
   );

@@ -1,6 +1,7 @@
 import type { AnswerValue } from "../../types/answer";
 import type { Question } from "../../types/question";
 import { NoticeBox } from "../common/NoticeBox";
+import { HorizontalScaleQuestion } from "./HorizontalScaleQuestion";
 
 type QuestionRendererProps = {
   question: Question;
@@ -15,7 +16,32 @@ function isSelected(value: AnswerValue | undefined, optionValue: string | number
   return value === optionValue;
 }
 
+function isNumericOptionValue(value: string | number): boolean {
+  return typeof value === "number" || (typeof value === "string" && value.trim() !== "" && Number.isFinite(Number(value)));
+}
+
+function isScaleQuestion(question: Question): boolean {
+  if (question.options.length < 4) {
+    return false;
+  }
+
+  const hasNumericScale = question.options.every((option) => isNumericOptionValue(option.value));
+  if (!hasNumericScale) {
+    return false;
+  }
+
+  return (
+    question.questionType === "likert" ||
+    question.questionType === "number" ||
+    question.questionType === "single_select"
+  );
+}
+
 export function QuestionRenderer({ question, value, onChange }: QuestionRendererProps) {
+  if (isScaleQuestion(question)) {
+    return <HorizontalScaleQuestion question={question} value={value} onChange={onChange} />;
+  }
+
   if (question.questionType === "multi_select") {
     return (
       <div className="question-options">

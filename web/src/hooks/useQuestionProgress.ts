@@ -1,14 +1,25 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import {
+  getQuestionSectionById,
+  getQuestionSectionForQuestionNo,
+  getQuestionsForSurveySection,
+  QUESTION_SURVEY_SECTIONS
+} from "../lib/surveySections";
 import { isAnswered, isQuestionVisible } from "../lib/validation";
 import {
   getCurrentQuestionNo,
+  getCurrentSurveySectionId,
   getQuestionDraft,
   setCurrentQuestionNo,
+  setCurrentSurveySectionId,
   setQuestionDraft
 } from "../lib/storage";
+import type { SurveySectionId } from "../lib/surveySections";
 import type { AnswerValue, BulkAnswersRequest, DraftAnswerMap } from "../types/answer";
 import type { Question } from "../types/question";
+
+const FIRST_QUESTION_SECTION_ID: SurveySectionId = "profile";
 
 export function useQuestionProgress(
   eventSlug: string | undefined,
@@ -17,6 +28,8 @@ export function useQuestionProgress(
 ) {
   const [draft, setDraft] = useState<DraftAnswerMap>({});
   const [currentQuestionNo, setCurrentNo] = useState<number | undefined>(questions[0]?.questionNo);
+  const [currentSectionId, setCurrentSectionId] =
+    useState<SurveySectionId>(FIRST_QUESTION_SECTION_ID);
 
   useEffect(() => {
     if (!eventSlug || !sessionId || !questions.length) {
@@ -24,8 +37,16 @@ export function useQuestionProgress(
     }
     const restoredDraft = getQuestionDraft(eventSlug, sessionId);
     const restoredNo = getCurrentQuestionNo(eventSlug, sessionId);
+    const restoredSectionId = getCurrentSurveySectionId(eventSlug, sessionId);
+    const restoredQuestionSection = restoredNo ? getQuestionSectionForQuestionNo(restoredNo) : undefined;
+    const nextSection =
+      getQuestionSectionById(restoredSectionId)?.id ??
+      restoredQuestionSection?.id ??
+      FIRST_QUESTION_SECTION_ID;
+
     setDraft(restoredDraft);
     setCurrentNo(restoredNo ?? questions[0].questionNo);
+    setCurrentSectionId(nextSection);
   }, [eventSlug, sessionId, questions]);
 
   const getAnswerValue = useCallback(
@@ -38,14 +59,34 @@ export function useQuestionProgress(
     [getAnswerValue, questions]
   );
 
+  const currentSection =
+    getQuestionSectionById(currentSectionId) ?? getQuestionSectionById(FIRST_QUESTION_SECTION_ID);
+
+  const currentSectionQuestions = useMemo(
+    () => getQuestionsForSurveySection(visibleQuestions, currentSection),
+    [currentSection, visibleQuestions]
+  );
+
+  const currentSectionIndex = Math.max(
+    0,
+    QUESTION_SURVEY_SECTIONS.findIndex((section) => section.id === currentSection?.id)
+  );
+
   useEffect(() => {
-    if (!visibleQuestions.length) {
+    if (!currentSection) {
       return;
     }
-    if (!currentQuestionNo || !visibleQuestions.some((question) => question.questionNo === currentQuestionNo)) {
-      setCurrentNo(visibleQuestions[0].questionNo);
+    const firstInSection = currentSectionQuestions[0];
+    if (!firstInSection) {
+      return;
     }
-  }, [currentQuestionNo, visibleQuestions]);
+    if (
+      !currentQuestionNo ||
+      !currentSectionQuestions.some((question) => question.questionNo === currentQuestionNo)
+    ) {
+      setCurrentNo(firstInSection.questionNo);
+    }
+  }, [currentQuestionNo, currentSection, currentSectionQuestions]);
 
   useEffect(() => {
     if (!eventSlug || !sessionId || !currentQuestionNo) {
@@ -53,6 +94,13 @@ export function useQuestionProgress(
     }
     setCurrentQuestionNo(eventSlug, sessionId, currentQuestionNo);
   }, [currentQuestionNo, eventSlug, sessionId]);
+
+  useEffect(() => {
+    if (!eventSlug || !sessionId || !currentSection) {
+      return;
+    }
+    setCurrentSurveySectionId(eventSlug, sessionId, currentSection.id);
+  }, [currentSection, eventSlug, sessionId]);
 
   const currentIndex = Math.max(
     0,
@@ -85,8 +133,25 @@ export function useQuestionProgress(
   const goToQuestionNo = useCallback(
     (questionNo: number) => {
       const target = visibleQuestions.find((question) => question.questionNo === questionNo);
-      if (target) {
+      const targetSection = getQuestionSectionForQuestionNo(questionNo);
+      if (target && targetSection) {
         setCurrentNo(target.questionNo);
+        setCurrentSectionId(targetSection.id);
+      }
+    },
+    [visibleQuestions]
+  );
+
+  const goToSectionId = useCallback(
+    (sectionId: SurveySectionId) => {
+      const targetSection = getQuestionSectionById(sectionId);
+      if (!targetSection) {
+        return;
+      }
+      const firstQuestion = getQuestionsForSurveySection(visibleQuestions, targetSection)[0];
+      setCurrentSectionId(targetSection.id);
+      if (firstQuestion) {
+        setCurrentNo(firstQuestion.questionNo);
       }
     },
     [visibleQuestions]
@@ -96,6 +161,10 @@ export function useQuestionProgress(
     const previous = visibleQuestions[currentIndex - 1];
     if (previous) {
       setCurrentNo(previous.questionNo);
+      const previousSection = getQuestionSectionForQuestionNo(previous.questionNo);
+      if (previousSection) {
+        setCurrentSectionId(previousSection.id);
+      }
     }
   }, [currentIndex, visibleQuestions]);
 
@@ -103,8 +172,34 @@ export function useQuestionProgress(
     const next = visibleQuestions[currentIndex + 1];
     if (next) {
       setCurrentNo(next.questionNo);
+      const nextSection = getQuestionSectionForQuestionNo(next.questionNo);
+      if (nextSection) {
+        setCurrentSectionId(nextSection.id);
+      }
     }
   }, [currentIndex, visibleQuestions]);
+
+  const goPreviousSection = useCallback(() => {
+    const previousSection = QUESTION_SURVEY_SECTIONS[currentSectionIndex - 1];
+    if (previousSection) {
+      goToSectionId(previousSection.id);
+    }
+  }, [currentSectionIndex, goToSectionId]);
+
+  const goNextSection = useCallback(() => {
+    const nextSection = QUESTION_SURVEY_SECTIONS[currentSectionIndex + 1];
+    if (nextSection) {
+      goToSectionId(nextSection.id);
+    }
+  }, [currentSectionIndex, goToSectionId]);
+
+  const getMissingRequiredQuestionNosForSection = useCallback(
+    (section = currentSection) =>
+      getQuestionsForSurveySection(visibleQuestions, section)
+        .filter((question) => question.required && !isAnswered(draft[question.id]?.answerValue))
+        .map((question) => question.questionNo),
+    [currentSection, draft, visibleQuestions]
+  );
 
   const missingRequiredQuestionNos = useMemo(
     () =>
@@ -114,9 +209,22 @@ export function useQuestionProgress(
     [draft, visibleQuestions]
   );
 
+  const missingRequiredQuestionNosForSection = useMemo(
+    () => getMissingRequiredQuestionNosForSection(currentSection),
+    [currentSection, getMissingRequiredQuestionNosForSection]
+  );
+
   const currentAnswered = currentQuestion
     ? !currentQuestion.required || isAnswered(draft[currentQuestion.id]?.answerValue)
     : false;
+
+  const sectionAnsweredCount = currentSectionQuestions.filter((question) =>
+    isAnswered(draft[question.id]?.answerValue)
+  ).length;
+
+  const answeredCount = visibleQuestions.filter((question) =>
+    isAnswered(draft[question.id]?.answerValue)
+  ).length;
 
   const toBulkRequest = useCallback((): BulkAnswersRequest => {
     const answers = visibleQuestions
@@ -141,16 +249,29 @@ export function useQuestionProgress(
     currentQuestion,
     currentIndex,
     currentAnswered,
+    currentSection,
+    currentSectionId: currentSection?.id ?? FIRST_QUESTION_SECTION_ID,
+    currentSectionIndex,
+    currentSectionQuestions,
+    sectionAnsweredCount,
+    sectionTotalCount: currentSectionQuestions.length,
     totalCount: visibleQuestions.length,
-    answeredCount: visibleQuestions.filter((question) => isAnswered(draft[question.id]?.answerValue)).length,
+    answeredCount,
     missingRequiredQuestionNos,
+    missingRequiredQuestionNosForSection,
+    getMissingRequiredQuestionNosForSection,
     getAnswerValue,
     updateAnswer,
     goPrevious,
     goNext,
+    goPreviousSection,
+    goNextSection,
     goToQuestionNo,
+    goToSectionId,
     toBulkRequest,
     isFirst: currentIndex <= 0,
-    isLast: currentIndex === visibleQuestions.length - 1
+    isLast: currentIndex === visibleQuestions.length - 1,
+    isFirstQuestionSection: currentSectionIndex <= 0,
+    isLastQuestionSection: currentSectionIndex === QUESTION_SURVEY_SECTIONS.length - 1
   };
 }

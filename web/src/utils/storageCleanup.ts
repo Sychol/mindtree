@@ -3,6 +3,7 @@ const PREFIX = "maeumnamu";
 const TEMPORARY_SESSION_KEYS = [
   "questionDraft",
   "currentQuestionNo",
+  "currentSurveySectionId",
   "lastLocalUpdatedAt",
   "mindCardDraft",
   "replyDraft",

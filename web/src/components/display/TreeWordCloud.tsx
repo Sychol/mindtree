@@ -1,50 +1,44 @@
-import type { CSSProperties } from "react";
-
 import type { DisplayKeyword } from "../../types/display";
+import { CanopyWordCloud } from "./CanopyWordCloud";
+import { TrunkWordCloud } from "./TrunkWordCloud";
 
 type TreeWordCloudProps = {
   keywords: DisplayKeyword[];
 };
 
-function leafStyle(keyword: DisplayKeyword, index: number, minWeight: number, maxWeight: number): CSSProperties {
-  const spread = Math.max(maxWeight - minWeight, 1);
-  const ratio = (keyword.weight - minWeight) / spread;
-  const fontSize = 18 + ratio * 30;
-  return {
-    "--leaf-index": index,
-    fontSize: `${fontSize}px`
-  } as CSSProperties;
+function isMindSignalKeyword(keyword: DisplayKeyword): boolean {
+  return keyword.category === "mind_signal";
+}
+
+function isCanopyKeyword(keyword: DisplayKeyword): boolean {
+  return (
+    keyword.category === "support" ||
+    keyword.category === "recovery" ||
+    keyword.category === "coping" ||
+    keyword.category === "neutral" ||
+    !keyword.category
+  );
 }
 
 export function TreeWordCloud({ keywords }: TreeWordCloudProps) {
+  const mindSignalKeywords = keywords.filter(isMindSignalKeyword);
+  const supportKeywords = keywords.filter(isCanopyKeyword);
+
   if (keywords.length === 0) {
     return (
-      <div className="tree-cloud tree-cloud--empty">
+      <div className="maeum-tree maeum-tree--empty">
         <p>아직 마음나무가 자라는 중입니다.</p>
         <span>첫 번째 잎을 남겨보세요.</span>
+        <div className="maeum-tree__ground" aria-hidden="true" />
       </div>
     );
   }
 
-  const visibleKeywords = keywords.slice(0, 40);
-  const weights = visibleKeywords.map((keyword) => keyword.weight);
-  const minWeight = Math.min(...weights);
-  const maxWeight = Math.max(...weights);
-
   return (
-    <div className="tree-cloud" aria-label="마음나무 키워드">
-      <div className="tree-cloud__canopy">
-        {visibleKeywords.map((keyword, index) => (
-          <span
-            className={`tree-cloud__leaf tree-cloud__leaf--${keyword.category ?? "neutral"}`}
-            key={`${keyword.text}-${index}`}
-            style={leafStyle(keyword, index, minWeight, maxWeight)}
-          >
-            {keyword.text}
-          </span>
-        ))}
-      </div>
-      <div className="tree-cloud__trunk" aria-hidden="true" />
+    <div className="maeum-tree" aria-label="마음나무 키워드">
+      <CanopyWordCloud keywords={supportKeywords} />
+      <TrunkWordCloud keywords={mindSignalKeywords} />
+      <div className="maeum-tree__ground" aria-hidden="true" />
     </div>
   );
 }
