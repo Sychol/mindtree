@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
 
 import { layoutCanopyKeywords } from "../../lib/displayTreeLayout";
 import type { DisplayKeyword } from "../../types/display";
@@ -15,7 +15,7 @@ function categoryClass(category: string | null | undefined): string {
 }
 
 export function CanopyWordCloud({ keywords }: CanopyWordCloudProps) {
-  const positionedKeywords = layoutCanopyKeywords(keywords);
+  const positionedKeywords = useMemo(() => layoutCanopyKeywords(keywords), [keywords]);
 
   return (
     <div className="maeum-tree__canopy" aria-label="응원과 회복 키워드">
@@ -25,8 +25,8 @@ export function CanopyWordCloud({ keywords }: CanopyWordCloudProps) {
           key={`${keyword.text}-${keyword.category ?? "neutral"}-${index}`}
           style={
             {
-              left: `${keyword.left}%`,
-              top: `${keyword.top}%`,
+              left: `${keyword.x}%`,
+              top: `${keyword.y}%`,
               fontSize: `${keyword.fontSize}px`,
               opacity: keyword.opacity,
               transform: `translate(-50%, -50%) rotate(${keyword.rotate}deg)`,

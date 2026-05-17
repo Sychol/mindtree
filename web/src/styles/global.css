@@ -1095,7 +1095,9 @@ a {
   right: 0;
   left: 0;
   height: 72%;
+  overflow: hidden;
   border-radius: 50%;
+  pointer-events: none;
 }
 
 .maeum-tree__canopy::before {
@@ -1116,6 +1118,7 @@ a {
   font-weight: 900;
   letter-spacing: 0;
   line-height: 1;
+  pointer-events: none;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1124,7 +1127,7 @@ a {
 
 .canopy-keyword {
   color: #21823c;
-  text-shadow: 0 2px 0 rgba(255, 255, 239, 0.74), 0 8px 18px rgba(32, 97, 45, 0.16);
+  text-shadow: 0 1px 0 rgba(255, 255, 239, 0.68), 0 6px 12px rgba(32, 97, 45, 0.14);
 }
 
 .canopy-keyword--support {
@@ -1174,13 +1177,14 @@ a {
     linear-gradient(180deg, #d7a569, #8a5830);
   box-shadow: inset 18px 0 28px rgba(255, 239, 201, 0.22), inset -18px 0 28px rgba(70, 40, 18, 0.16);
   clip-path: polygon(42% 0, 58% 0, 63% 28%, 70% 63%, 88% 100%, 12% 100%, 30% 63%, 37% 28%);
+  pointer-events: none;
   transform: translateX(-50%);
 }
 
 .trunk-keyword {
   max-width: 145px;
   color: #6d3f18;
-  text-shadow: 0 1px 0 rgba(255, 233, 190, 0.62);
+  text-shadow: 0 1px 0 rgba(255, 233, 190, 0.54);
 }
 
 .trunk-keyword--tone-1 {

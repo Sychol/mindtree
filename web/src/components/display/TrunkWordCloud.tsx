@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
 
 import { layoutTrunkKeywords } from "../../lib/displayTreeLayout";
 import type { DisplayKeyword } from "../../types/display";
@@ -8,7 +8,7 @@ type TrunkWordCloudProps = {
 };
 
 export function TrunkWordCloud({ keywords }: TrunkWordCloudProps) {
-  const positionedKeywords = layoutTrunkKeywords(keywords);
+  const positionedKeywords = useMemo(() => layoutTrunkKeywords(keywords), [keywords]);
 
   return (
     <div className="maeum-tree__trunk" aria-label="마음신호 키워드">
@@ -18,8 +18,8 @@ export function TrunkWordCloud({ keywords }: TrunkWordCloudProps) {
           key={`${keyword.text}-${index}`}
           style={
             {
-              left: `${keyword.left}%`,
-              top: `${keyword.top}%`,
+              left: `${keyword.x}%`,
+              top: `${keyword.y}%`,
               fontSize: `${keyword.fontSize}px`,
               opacity: keyword.opacity,
               transform: `translate(-50%, -50%) rotate(${keyword.rotate}deg)`,
