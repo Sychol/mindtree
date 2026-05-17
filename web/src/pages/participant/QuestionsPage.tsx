@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { getSession } from "../../api/sessions";
@@ -27,9 +27,17 @@ export function QuestionsPage() {
   const { questions, loading, error, retry } = usePreloadedQuestions(eventSlug, sessionId);
   const progress = useQuestionProgress(eventSlug, sessionId, questions);
   const [attemptedAdvance, setAttemptedAdvance] = useState(false);
+  const pendingSectionScrollRef = useRef(false);
 
   useEffect(() => {
     setAttemptedAdvance(false);
+    if (!pendingSectionScrollRef.current) {
+      return;
+    }
+    pendingSectionScrollRef.current = false;
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   }, [progress.currentSectionId]);
 
   useEffect(() => {
@@ -110,6 +118,7 @@ export function QuestionsPage() {
     if (!validateSection()) {
       return;
     }
+    pendingSectionScrollRef.current = true;
     progress.goNextSection();
   }
 
