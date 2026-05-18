@@ -9,7 +9,7 @@ def _scores(
     phq9_total: int = 0,
     phq9_item9: int = 0,
     pcl5_total: int = 0,
-    kmies_total: int = 6,
+    kmies_total: int = 9,
     kscs_level: str = "medium",
 ) -> list[ScaleScoreResult]:
     return [
@@ -57,7 +57,7 @@ def test_phq9_item9_drives_help_notice_and_public_restriction() -> None:
 
 def test_risk_details_and_high_signals() -> None:
     result = calculate_risk_flags(
-        _scores(phq9_total=20, phq9_item9=1, pcl5_total=34, kmies_total=25, kscs_level="low")
+        _scores(phq9_total=20, phq9_item9=1, pcl5_total=34, kmies_total=37, kscs_level="low")
     )
 
     assert result.trauma_high_signal is True
@@ -65,13 +65,13 @@ def test_risk_details_and_high_signals() -> None:
     assert result.details["phq9_high_instability_signal"] is True
     assert result.details["phq9_severe_with_item9"] is True
     assert result.details["kscs_level"] == "low"
-    assert result.details["phq9_item9_question_no"] == 29
-    assert result.details["kmies_high_signal_threshold"] == 25
+    assert result.details["phq9_item9_question_no"] == 32
+    assert result.details["kmies_high_signal_threshold"] == 37
 
 
-def test_kmies_high_signal_uses_6_item_threshold() -> None:
-    below = calculate_risk_flags(_scores(kmies_total=24))
-    high = calculate_risk_flags(_scores(kmies_total=25))
+def test_kmies_high_signal_uses_9_item_threshold() -> None:
+    below = calculate_risk_flags(_scores(kmies_total=36))
+    high = calculate_risk_flags(_scores(kmies_total=37))
 
     assert below.moral_injury_high_signal is False
     assert high.moral_injury_high_signal is True

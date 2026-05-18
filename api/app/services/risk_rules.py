@@ -3,7 +3,7 @@ from typing import Any
 
 from app.services.scoring import PHQ9_ITEM9_QUESTION_NO, RULE_VERSION, ScaleScoreResult
 
-KMIES_HIGH_SIGNAL_THRESHOLD = 25
+KMIES_HIGH_SIGNAL_THRESHOLD = 37
 
 
 @dataclass(frozen=True)
@@ -33,7 +33,7 @@ def calculate_risk_flags(scale_scores: list[ScaleScoreResult]) -> RiskFlagResult
 
     phq9_item9_positive = phq9_item9_score >= 1
     trauma_high_signal = pcl5_total_score >= 34
-    # TODO: K-MIES 6-item high-signal threshold is an operational placeholder pending final review.
+    # K-MIES v4 uses the restored 9-item high-signal threshold.
     moral_injury_high_signal = kmies_total_score >= KMIES_HIGH_SIGNAL_THRESHOLD
 
     details: dict[str, Any] = {

@@ -32,9 +32,10 @@ from app.schemas.admin_survey import (
 )
 from app.schemas.survey_content import PublicSurveyContentResponse
 from app.services.audit_log import create_audit_log
+from app.services.scoring import RULE_VERSION
 
 SURVEY_CONFIG_KEY = "surveyConfig"
-SURVEY_CONFIG_VERSION = "v1"
+SURVEY_CONFIG_VERSION = RULE_VERSION
 
 REQUIRED_CONSENT_ITEM_KEYS = (
     "researchParticipationConsent",
@@ -43,7 +44,7 @@ REQUIRED_CONSENT_ITEM_KEYS = (
     "deidentifiedAiRagUseConsent",
 )
 
-FINAL_61_SECTIONS: list[dict[str, Any]] = [
+FINAL_64_SECTIONS: list[dict[str, Any]] = [
     {"id": "intro", "sectionNo": 1, "title": "리본톡 소개 및 설문"},
     {"id": "consent", "sectionNo": 2, "title": "연구 참여 동의설명문 및 동의서"},
     {"id": "profile", "sectionNo": 3, "title": "인구통계", "questionNoRange": [1, 14]},
@@ -51,27 +52,27 @@ FINAL_61_SECTIONS: list[dict[str, Any]] = [
         "id": "kmies",
         "sectionNo": 4,
         "title": "앞서 떠올린 경험에 비추어 응답해주세요.",
-        "questionNoRange": [15, 20],
+        "questionNoRange": [15, 23],
     },
     {
         "id": "phq9",
         "sectionNo": 5,
         "title": "지난 2주 동안, 아래 나열되는 증상들에 얼마나 자주 시달렸습니까?",
         "description": "최근 2주 동안의 상태를 기준으로 응답해 주세요.",
-        "questionNoRange": [21, 29],
+        "questionNoRange": [24, 32],
     },
     {
         "id": "pcl5",
         "sectionNo": 6,
         "title": "지난 2주 동안, 아래 나열되는 증상들에 얼마나 자주 시달렸습니까?",
         "description": "앞서 떠올린 스트레스 경험과 관련해 응답해 주세요.",
-        "questionNoRange": [30, 49],
+        "questionNoRange": [33, 52],
     },
     {
         "id": "kscs",
         "sectionNo": 7,
         "title": "각 문항을 읽고 평소 자신과 얼마나 일치하는지 체크해 주십시오.",
-        "questionNoRange": [50, 61],
+        "questionNoRange": [53, 64],
     },
     {"id": "thanks", "sectionNo": 8, "title": "참여해주셔서 감사합니다."},
 ]
@@ -197,8 +198,8 @@ def _default_thanks() -> dict[str, Any]:
 
 def get_default_survey_config(questions: list[Question]) -> SurveyConfig:
     question_nos = {question.question_no for question in questions}
-    if not questions or question_nos == set(range(1, 62)):
-        sections = deepcopy(FINAL_61_SECTIONS)
+    if not questions or question_nos == set(range(1, 65)):
+        sections = deepcopy(FINAL_64_SECTIONS)
     else:
         sections = _sections_from_current_questions(questions)
 
@@ -519,12 +520,27 @@ def _merged_survey_config(event: Event, questions: list[Question]) -> SurveyConf
         return SurveyConfig.model_validate(default_config)
 
     merged = deepcopy(default_config)
+    question_rule_version_matches = _stored_question_rule_version(stored) == RULE_VERSION
     _merge_intro(merged, stored)
     _merge_consent(merged, stored)
     _merge_sections(merged, stored)
-    _merge_question_overrides(merged, stored, {question.question_no for question in questions})
+    # When the question rule version changes, question numbers may point to
+    # different items. Keep section-level copy but drop per-question overrides.
+    if question_rule_version_matches:
+        _merge_question_overrides(merged, stored, {question.question_no for question in questions})
     _merge_thanks(merged, stored)
     return SurveyConfig.model_validate(merged)
+
+
+def _stored_question_rule_version(stored: dict[str, Any]) -> str | None:
+    question_rule_version = stored.get("questionRuleVersion")
+    if isinstance(question_rule_version, str) and question_rule_version.strip():
+        return question_rule_version
+
+    version = stored.get("version")
+    if isinstance(version, str) and version.strip():
+        return version
+    return None
 
 
 def _merge_intro(merged: dict[str, Any], stored: dict[str, Any]) -> None:

@@ -26,11 +26,18 @@ def test_public_survey_content_returns_display_config_only(
     assert response.status_code == 200
     data = response.json()
     assert data["eventSlug"] == event.slug
+    assert data["surveyConfig"]["version"] == "v4-2026-05-18-kmies-9-items"
     assert "intro" in data["surveyConfig"]
     assert "consent" in data["surveyConfig"]
     assert "sections" in data["surveyConfig"]
     assert "questionOverrides" in data["surveyConfig"]
     assert "thanks" in data["surveyConfig"]
+    sections = {section["id"]: section for section in data["surveyConfig"]["sections"]}
+    assert sections["profile"]["questionNoRange"] == [1, 14]
+    assert sections["kmies"]["questionNoRange"] == [15, 23]
+    assert sections["phq9"]["questionNoRange"] == [24, 32]
+    assert sections["pcl5"]["questionNoRange"] == [33, 52]
+    assert sections["kscs"]["questionNoRange"] == [53, 64]
     response_text = response.text
     assert "scoreMap" not in response_text
     assert "riskFlags" not in response_text
@@ -73,7 +80,7 @@ def test_public_survey_content_reflects_admin_presentation_updates(
         headers=headers,
     )
     question = client.patch(
-        f"/api/admin/events/{event.slug}/survey/questions/21/presentation",
+        f"/api/admin/events/{event.slug}/survey/questions/24/presentation",
         json={"title": "공개 반영 문항", "description": "공개 반영 문항 설명"},
         headers=headers,
     )
@@ -91,7 +98,41 @@ def test_public_survey_content_reflects_admin_presentation_updates(
     assert config["intro"]["showLogo"] is False
     assert config["consent"]["title"] == "공개 반영 동의서"
     assert next(section for section in config["sections"] if section["id"] == "phq9")["title"] == "최근 2주 마음 상태"
-    assert config["questionOverrides"]["21"] == {
+    assert next(section for section in config["sections"] if section["id"] == "phq9")["questionNoRange"] == [24, 32]
+    assert config["questionOverrides"]["24"] == {
         "title": "공개 반영 문항",
         "description": "공개 반영 문항 설명",
     }
+
+
+def test_public_survey_content_ignores_old_question_overrides_when_rule_version_changes(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory(
+        settings={
+            "surveyConfig": {
+                "version": "v3-2026-05-15-final-questions",
+                "sections": [
+                    {
+                        "id": "kmies",
+                        "sectionNo": 4,
+                        "title": "Stored K-MIES title",
+                        "questionNoRange": [15, 20],
+                    }
+                ],
+                "questionOverrides": {"24": {"title": "Old shifted override"}},
+            }
+        }
+    )
+    seed_questions_for_event(db_session, event.slug)
+
+    response = client.get(f"/api/events/{event.slug}/survey-content")
+
+    assert response.status_code == 200
+    config = response.json()["surveyConfig"]
+    sections = {section["id"]: section for section in config["sections"]}
+    assert sections["kmies"]["title"] == "Stored K-MIES title"
+    assert sections["kmies"]["questionNoRange"] == [15, 23]
+    assert config["questionOverrides"] == {}

@@ -6,14 +6,14 @@ from uuid import UUID
 from app.models.answer import Answer
 from app.models.question import Question
 
-RULE_VERSION = "v3-2026-05-15-final-questions"
-K_SCS_REVERSE_QUESTION_NOS = [50, 53, 57, 58, 60, 61]
+RULE_VERSION = "v4-2026-05-18-kmies-9-items"
+K_SCS_REVERSE_QUESTION_NOS = [53, 56, 60, 61, 63, 64]
 
-PHQ9_QUESTION_NOS = list(range(21, 30))
-PCL5_QUESTION_NOS = list(range(30, 50))
-KMIES_QUESTION_NOS = list(range(15, 21))
-KSCS_QUESTION_NOS = list(range(50, 62))
-PHQ9_ITEM9_QUESTION_NO = 29
+KMIES_QUESTION_NOS = list(range(15, 24))
+PHQ9_QUESTION_NOS = list(range(24, 33))
+PCL5_QUESTION_NOS = list(range(33, 53))
+KSCS_QUESTION_NOS = list(range(53, 65))
+PHQ9_ITEM9_QUESTION_NO = 32
 
 
 @dataclass(frozen=True)
@@ -74,10 +74,10 @@ def get_severity_level(scale_code: str, score: Decimal) -> str:
         return "high_risk"
 
     if scale_code == "kmies":
-        # TODO: K-MIES 6-item cutoffs are operational placeholders pending final review.
-        if score <= Decimal("12"):
+        # K-MIES 9-item cutoffs are restored for the v4 9-item structure.
+        if score <= Decimal("18"):
             return "low"
-        if score <= Decimal("24"):
+        if score <= Decimal("36"):
             return "moderate"
         return "high"
 

@@ -47,7 +47,7 @@ export const SURVEY_SECTIONS: SurveySection[] = [
     sectionNo: 4,
     totalSections: SURVEY_TOTAL_SECTIONS,
     title: "앞서 떠올린 경험에 비추어 응답해주세요.",
-    questionNoRange: [15, 20]
+    questionNoRange: [15, 23]
   },
   {
     id: "phq9",
@@ -55,7 +55,7 @@ export const SURVEY_SECTIONS: SurveySection[] = [
     totalSections: SURVEY_TOTAL_SECTIONS,
     title: "지난 2주 동안, 아래 나열되는 증상들에 얼마나 자주 시달렸습니까?",
     description: "최근 2주 동안의 상태를 기준으로 응답해 주세요.",
-    questionNoRange: [21, 29]
+    questionNoRange: [24, 32]
   },
   {
     id: "pcl5",
@@ -63,14 +63,14 @@ export const SURVEY_SECTIONS: SurveySection[] = [
     totalSections: SURVEY_TOTAL_SECTIONS,
     title: "지난 2주 동안, 아래 나열되는 증상들에 얼마나 자주 시달렸습니까?",
     description: "앞서 떠올린 스트레스 경험과 관련해 응답해 주세요.",
-    questionNoRange: [30, 49]
+    questionNoRange: [33, 52]
   },
   {
     id: "kscs",
     sectionNo: 7,
     totalSections: SURVEY_TOTAL_SECTIONS,
     title: "각 문항을 읽고 평소 자신과 얼마나 일치하는지 체크해 주십시오.",
-    questionNoRange: [50, 61]
+    questionNoRange: [53, 64]
   },
   {
     id: "thanks",
@@ -88,7 +88,7 @@ export const QUESTION_SURVEY_SECTIONS = SURVEY_SECTIONS.filter(
 export const TOTAL_SURVEY_SECTIONS = SURVEY_TOTAL_SECTIONS;
 
 export const DEFAULT_SURVEY_CONFIG: SurveyConfig = {
-  version: "v1",
+  version: "v4-2026-05-18-kmies-9-items",
   intro: {
     title: "리본톡 소개 및 설문",
     subtitle: "소방안전박람회 마음 점검",

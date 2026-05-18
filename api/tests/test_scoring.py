@@ -37,35 +37,47 @@ def test_phq9_severity_bands_and_item9_score() -> None:
     ]
 
     for scores, expected in cases:
-        result = calculate_phq9(_answer_by_no(21, scores))
+        result = calculate_phq9(_answer_by_no(24, scores))
         assert result.severity_level == expected
 
-    item9_result = calculate_phq9(_answer_by_no(21, [0, 0, 0, 0, 0, 0, 0, 0, 1]))
-    assert item9_result.sub_scores["item9_question_no"] == 29
+    item9_result = calculate_phq9(_answer_by_no(24, [0, 0, 0, 0, 0, 0, 0, 0, 1]))
+    assert item9_result.sub_scores["item9_question_no"] == 32
     assert item9_result.sub_scores["item9_score"] == 1
+    assert item9_result.sub_scores["question_nos"] == list(range(24, 33))
 
 
 def test_pcl5_severity_bands() -> None:
-    assert calculate_pcl5(_answer_by_no(30, [0] * 20)).severity_level == "normal_range"
-    assert calculate_pcl5(_answer_by_no(30, [2] * 11 + [1] * 9)).severity_level == "threshold"
-    assert calculate_pcl5(_answer_by_no(30, [2] * 17 + [0] * 3)).severity_level == "high_risk"
+    assert calculate_pcl5(_answer_by_no(33, [0] * 20)).severity_level == "normal_range"
+    assert calculate_pcl5(_answer_by_no(33, [2] * 11 + [1] * 9)).severity_level == "threshold"
+    assert calculate_pcl5(_answer_by_no(33, [2] * 17 + [0] * 3)).severity_level == "high_risk"
 
 
 def test_kmies_severity_bands() -> None:
-    assert calculate_kmies(_answer_by_no(15, [1] * 6)).severity_level == "low"
-    assert calculate_kmies(_answer_by_no(15, [3] * 6)).severity_level == "moderate"
-    assert calculate_kmies(_answer_by_no(15, [5] * 6)).severity_level == "high"
+    low = calculate_kmies(_answer_by_no(15, [2] * 9))
+    moderate = calculate_kmies(_answer_by_no(15, [2] * 8 + [3]))
+    moderate_upper = calculate_kmies(_answer_by_no(15, [4] * 9))
+    high = calculate_kmies(_answer_by_no(15, [4] * 8 + [5]))
+
+    assert low.raw_score == Decimal("18")
+    assert low.severity_level == "low"
+    assert moderate.raw_score == Decimal("19")
+    assert moderate.severity_level == "moderate"
+    assert moderate_upper.raw_score == Decimal("36")
+    assert moderate_upper.severity_level == "moderate"
+    assert high.raw_score == Decimal("37")
+    assert high.severity_level == "high"
+    assert high.sub_scores["question_nos"] == list(range(15, 24))
 
 
 def test_kscs_reverse_scoring_and_bands() -> None:
     low_scores = {
         question_no: _answer(5 if question_no in K_SCS_REVERSE_QUESTION_NOS else 1)
-        for question_no in range(50, 62)
+        for question_no in range(53, 65)
     }
-    medium_scores = {question_no: _answer(3) for question_no in range(50, 62)}
+    medium_scores = {question_no: _answer(3) for question_no in range(53, 65)}
     high_scores = {
         question_no: _answer(1 if question_no in K_SCS_REVERSE_QUESTION_NOS else 5)
-        for question_no in range(50, 62)
+        for question_no in range(53, 65)
     }
 
     low = calculate_kscs(low_scores)
@@ -75,6 +87,8 @@ def test_kscs_reverse_scoring_and_bands() -> None:
     assert low.severity_level == "low"
     assert medium.severity_level == "medium"
     assert high.severity_level == "high"
-    assert medium.sub_scores["adjusted_scores"]["50"] == 3.0
-    assert high.sub_scores["adjusted_scores"]["50"] == 5.0
+    assert medium.sub_scores["adjusted_scores"]["53"] == 3.0
+    assert high.sub_scores["adjusted_scores"]["53"] == 5.0
+    assert high.sub_scores["question_nos"] == list(range(53, 65))
     assert high.sub_scores["reverse_scored_question_nos"] == K_SCS_REVERSE_QUESTION_NOS
+    assert K_SCS_REVERSE_QUESTION_NOS == [53, 56, 60, 61, 63, 64]

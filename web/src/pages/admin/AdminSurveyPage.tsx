@@ -109,6 +109,8 @@ export function AdminSurveyPage() {
   };
 
   const participantUrl = `/e/${encodeURIComponent(eventSlug)}`;
+  const totalQuestionCount =
+    data?.sectionSummaries.reduce((sum, section) => sum + section.questionCount, 0) ?? 0;
 
   return (
     <section className="admin-section admin-survey-page">
@@ -131,6 +133,12 @@ export function AdminSurveyPage() {
       <div className="admin-alert admin-alert--warning">
         이 화면은 표시 설정만 관리하며, 점수화 문항 구조는 변경하지 않습니다.
       </div>
+
+      {data ? (
+        <div className="admin-alert">
+          문항 기준 {data.surveyConfig.version} · 총 {totalQuestionCount}문항
+        </div>
+      ) : null}
 
       {error ? <div className="admin-alert admin-alert--error">{error}</div> : null}
       {success ? <div className="admin-alert admin-alert--success">{success}</div> : null}

@@ -19,7 +19,7 @@ from tests.admin_test_utils import auth_headers, create_admin
 
 def create_response_dataset(db_session: Session, event: Event) -> EventSession:
     questions: list[Question] = []
-    for question_no in range(1, 62):
+    for question_no in range(1, 65):
         question = Question(
             event_id=event.id,
             question_no=question_no,
@@ -120,7 +120,7 @@ def test_admin_responses_requires_auth(client: TestClient, db_session: Session, 
     assert response.status_code == 401
 
 
-def test_admin_responses_columns_api_returns_61_question_columns(
+def test_admin_responses_columns_api_returns_64_question_columns(
     client: TestClient,
     db_session: Session,
     event_factory,
@@ -136,9 +136,9 @@ def test_admin_responses_columns_api_returns_61_question_columns(
 
     assert response.status_code == 200
     data = response.json()
-    assert len(data["questionColumns"]) == 61
+    assert len(data["questionColumns"]) == 64
     assert data["questionColumns"][0]["key"] == "q001"
-    assert data["questionColumns"][-1]["key"] == "q061"
+    assert data["questionColumns"][-1]["key"] == "q064"
     assert "귀하의 연령대" in data["questionColumns"][0]["label"]
 
 

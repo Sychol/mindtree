@@ -89,7 +89,7 @@ def test_consented_session_can_submit_all_answers_and_transition(
 
     assert response.status_code == 200
     data = response.json()
-    assert data["savedCount"] == 61
+    assert data["savedCount"] == 64
     assert data["missingQuestionNos"] == []
     assert data["sessionStatus"] == "questions_completed"
     assert data["scoring"]["calculated"] is True
@@ -112,7 +112,7 @@ def test_consented_session_can_submit_all_answers_and_transition(
     assert len(db_session.execute(select(ScaleScore).where(ScaleScore.session_id == session_id)).scalars().all()) == 4
     assert db_session.execute(
         select(RiskFlag).where(RiskFlag.session_id == session_id)
-    ).scalar_one().rule_version == "v3-2026-05-15-final-questions"
+    ).scalar_one().rule_version == "v4-2026-05-18-kmies-9-items"
 
 
 def test_same_payload_is_idempotent(
@@ -134,7 +134,7 @@ def test_same_payload_is_idempotent(
     answers = db_session.execute(
         select(Answer).where(Answer.session_id == session_id)
     ).scalars().all()
-    assert len(answers) == 61
+    assert len(answers) == 64
 
 
 def test_partial_submission_returns_missing_question_nos(
@@ -190,7 +190,7 @@ def test_general_public_profile_answer_allows_skipping_questions_4_and_5(
 
     assert response.status_code == 200
     data = response.json()
-    assert data["savedCount"] == 59
+    assert data["savedCount"] == 62
     assert data["missingQuestionNos"] == []
     assert data["sessionStatus"] == "questions_completed"
 
@@ -225,7 +225,7 @@ def test_invalid_answer_value_returns_bad_request(
     event = event_factory()
     seed_questions_for_event(db_session, event.slug)
     session_id = _create_consented_session(client, event.slug)
-    phq9_question = next(question for question in _questions(db_session, event.id) if question.question_no == 21)
+    phq9_question = next(question for question in _questions(db_session, event.id) if question.question_no == 24)
 
     response = client.put(
         f"/api/sessions/{session_id}/answers/bulk",

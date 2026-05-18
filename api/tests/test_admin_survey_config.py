@@ -43,7 +43,7 @@ def test_admin_survey_requires_auth(client: TestClient, db_session: Session, eve
     assert response.status_code == 401
 
 
-def test_admin_survey_get_returns_default_61_question_flow(
+def test_admin_survey_get_returns_default_64_question_flow(
     client: TestClient,
     db_session: Session,
     event_factory,
@@ -56,6 +56,7 @@ def test_admin_survey_get_returns_default_61_question_flow(
     assert response.status_code == 200
     data = response.json()
     assert data["event"]["slug"] == event.slug
+    assert data["surveyConfig"]["version"] == "v4-2026-05-18-kmies-9-items"
     assert len(data["surveyConfig"]["sections"]) == 8
     assert [section["id"] for section in data["surveyConfig"]["sections"]] == [
         "intro",
@@ -70,18 +71,63 @@ def test_admin_survey_get_returns_default_61_question_flow(
     summaries = {section["id"]: section for section in data["sectionSummaries"]}
     assert summaries["profile"]["questionNoRange"] == [1, 14]
     assert summaries["profile"]["questionCount"] == 14
-    assert summaries["kmies"]["questionNoRange"] == [15, 20]
-    assert summaries["phq9"]["questionNoRange"] == [21, 29]
-    assert summaries["pcl5"]["questionNoRange"] == [30, 49]
-    assert summaries["kscs"]["questionNoRange"] == [50, 61]
-    assert sum(section["questionCount"] for section in data["sectionSummaries"]) == 61
+    assert summaries["kmies"]["questionNoRange"] == [15, 23]
+    assert summaries["kmies"]["questionCount"] == 9
+    assert summaries["phq9"]["questionNoRange"] == [24, 32]
+    assert summaries["pcl5"]["questionNoRange"] == [33, 52]
+    assert summaries["kscs"]["questionNoRange"] == [53, 64]
+    assert sum(section["questionCount"] for section in data["sectionSummaries"]) == 64
     assert data["questionsBySection"][0]["sectionId"] == "profile"
+    assert sum(len(section["questions"]) for section in data["questionsBySection"]) == 64
     first_question = data["questionsBySection"][0]["questions"][0]
     assert first_question["questionNo"] == 1
     assert first_question["displayTitle"] == first_question["title"]
     assert first_question["editable"]["questionNo"] is False
     assert first_question["editable"]["scoreMap"] is False
     assert first_question["optionsCount"] >= 0
+
+
+def test_admin_survey_ignores_old_question_overrides_when_rule_version_changes(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory(
+        settings={
+            "surveyConfig": {
+                "version": "v3-2026-05-15-final-questions",
+                "intro": {"title": "Stored intro"},
+                "sections": [
+                    {
+                        "id": "phq9",
+                        "sectionNo": 5,
+                        "title": "Stored PHQ title",
+                        "description": "Stored PHQ description",
+                        "questionNoRange": [21, 29],
+                    }
+                ],
+                "questionOverrides": {
+                    "21": {"title": "Old PHQ item 1"},
+                    "24": {"title": "Old shifted item"},
+                },
+                "thanks": {"title": "Stored thanks", "paragraphs": ["Stored closing"]},
+            }
+        }
+    )
+    seed_questions_for_event(db_session, event.slug)
+    admin = create_admin(db_session)
+
+    response = client.get(f"/api/admin/events/{event.slug}/survey", headers=auth_headers(admin))
+
+    assert response.status_code == 200
+    data = response.json()
+    config = data["surveyConfig"]
+    summaries = {section["id"]: section for section in data["sectionSummaries"]}
+    assert config["version"] == "v4-2026-05-18-kmies-9-items"
+    assert config["intro"]["title"] == "Stored intro"
+    assert next(section for section in config["sections"] if section["id"] == "phq9")["title"] == "Stored PHQ title"
+    assert summaries["phq9"]["questionNoRange"] == [24, 32]
+    assert config["questionOverrides"] == {}
 
 
 def test_admin_survey_updates_and_audit_logs(

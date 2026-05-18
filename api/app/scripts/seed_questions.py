@@ -16,10 +16,10 @@ from app.repositories.events import EventRepository
 from app.repositories.questions import QuestionRepository
 from app.services.scoring import RULE_VERSION
 
-QUESTIONS_FILENAME = "questions_fire_expo_2026_final_260515.json"
-SCORING_RULES_FILENAME = "scoring_rules_v3_final_260515.json"
-EXPECTED_QUESTION_COUNT = 61
-EXPECTED_QUESTION_NOS = set(range(1, 62))
+QUESTIONS_FILENAME = "questions_fire_expo_2026_final_260518.json"
+SCORING_RULES_FILENAME = "scoring_rules_v4_final_260518.json"
+EXPECTED_QUESTION_COUNT = 64
+EXPECTED_QUESTION_NOS = set(range(1, 65))
 ALLOWED_SCALE_CODES = {"profile", "kmies", "phq9", "pcl5", "kscs"}
 
 
@@ -51,7 +51,7 @@ def find_seed_file(filename: str) -> Path:
 
 def _read_json(path: Path) -> dict[str, Any]:
     raw = path.read_text(encoding="utf-8-sig")
-    if "�" in raw:
+    if chr(0xFFFD) in raw:
         raise SeedValidationError(f"{path} contains Unicode replacement characters.")
     return json.loads(raw)
 
@@ -164,8 +164,9 @@ def _prepare_existing_questions_for_final_seed(
 
     if blocked_question_nos:
         raise SeedValidationError(
-            "stale question_no "
-            f"{sorted(blocked_question_nos)}: 기존 테스트 응답 데이터가 있어 자동 삭제하지 않음"
+            "stale/conflicting question_no "
+            f"{sorted(blocked_question_nos)} have existing answers; "
+            "refusing automatic deletion."
         )
 
     deleted_stale = 0

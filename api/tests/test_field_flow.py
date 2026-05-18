@@ -70,7 +70,7 @@ def test_participant_backend_field_flow_reaches_completion_and_keyword_jobs(
     questions = client.get(f"/api/events/{event.slug}/questions")
     assert questions.status_code == 200
     question_items = questions.json()["questions"]
-    assert len(question_items) == 61
+    assert len(question_items) == 64
 
     answers = client.put(
         f"/api/sessions/{session_id}/answers/bulk",
