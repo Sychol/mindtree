@@ -49,6 +49,41 @@ def _should_seed_dev() -> bool:
     return raw_value in {"1", "true", "yes", "y", "on", "force"}
 
 
+def _should_seed_dummy_content() -> bool:
+    if not _env_flag("AUTO_SEED_DUMMY_CONTENT"):
+        return False
+
+    app_env = os.getenv("APP_ENV", "local").strip().lower()
+    if app_env == "production" and not _env_flag("DUMMY_CONTENT_ALLOW_PRODUCTION"):
+        print(
+            "startup_step seed_dummy_content skipped production_without_explicit_allow=true",
+            flush=True,
+        )
+        return False
+
+    return True
+
+
+def _dummy_content_seed_args() -> list[str]:
+    return [
+        sys.executable,
+        "-m",
+        "app.scripts.seed_dummy_content",
+        "--event-slug",
+        os.getenv("DUMMY_CONTENT_EVENT_SLUG", "fire-expo-2026"),
+        "--cards",
+        os.getenv("DUMMY_CONTENT_CARDS", "100"),
+        "--replies",
+        os.getenv("DUMMY_CONTENT_REPLIES", "100"),
+        "--keywords",
+        os.getenv("DUMMY_CONTENT_KEYWORDS", "100"),
+        "--batch-label",
+        os.getenv("DUMMY_CONTENT_BATCH_LABEL", "dummy-content-v1"),
+        "--mode",
+        os.getenv("DUMMY_CONTENT_SEED_MODE", "missing"),
+    ]
+
+
 def main() -> None:
     settings = get_settings()
 
@@ -59,6 +94,9 @@ def main() -> None:
         _run_step([sys.executable, "-m", "app.scripts.seed_dev"])
     elif _env_flag("AUTO_BOOTSTRAP_ADMIN"):
         _run_step([sys.executable, "-m", "app.scripts.bootstrap_admin"])
+
+    if _should_seed_dummy_content():
+        _run_step(_dummy_content_seed_args())
 
     host = os.getenv("API_HOST", settings.api_host)
     port = os.getenv("API_PORT", str(settings.api_port))
