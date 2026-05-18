@@ -12,6 +12,7 @@ import { AdminLoginPage } from "../pages/admin/AdminLoginPage";
 import { AdminRepliesPage } from "../pages/admin/AdminRepliesPage";
 import { AdminResponsesPage } from "../pages/admin/AdminResponsesPage";
 import { AdminRewardsPage } from "../pages/admin/AdminRewardsPage";
+import { AdminSurveyPage } from "../pages/admin/AdminSurveyPage";
 
 function RequireAdmin({ children }: { children: ReactNode }) {
   if (!getStoredAdminToken()) {
@@ -37,6 +38,7 @@ export function AdminRoutes() {
         <Route path="cards" element={<AdminCardsPage />} />
         <Route path="replies" element={<AdminRepliesPage />} />
         <Route path="responses" element={<AdminResponsesPage />} />
+        <Route path="survey" element={<AdminSurveyPage />} />
         <Route path="keywords" element={<AdminKeywordsPage />} />
         <Route path="jobs" element={<AdminKeywordJobsPage />} />
         <Route path="rewards" element={<AdminRewardsPage />} />

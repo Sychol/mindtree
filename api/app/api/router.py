@@ -9,6 +9,7 @@ from app.api.routes import (
     admin_responses,
     admin_review,
     admin_rewards,
+    admin_survey,
     answers,
     cards,
     completion,
@@ -39,4 +40,5 @@ api_router.include_router(admin_review.router, tags=["admin-review"])
 api_router.include_router(admin_keywords.router, tags=["admin-keywords"])
 api_router.include_router(admin_responses.router, tags=["admin-responses"])
 api_router.include_router(admin_rewards.router, tags=["admin-rewards"])
+api_router.include_router(admin_survey.router, tags=["admin-survey"])
 api_router.include_router(admin_audit_logs.router, tags=["admin-audit-logs"])

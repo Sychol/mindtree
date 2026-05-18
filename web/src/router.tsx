@@ -6,7 +6,10 @@ import { ParticipantRoutes } from "./routes/ParticipantRoutes";
 
 function LegacyParticipantRedirect() {
   const { eventSlug } = useParams();
-  if (!eventSlug || eventSlug === "admin" || eventSlug === "display") {
+  if (eventSlug === "display") {
+    return <Navigate to="/display/fire-expo-2026" replace />;
+  }
+  if (!eventSlug || eventSlug === "admin") {
     return <Navigate to="/e/fire-expo-2026" replace />;
   }
   return <Navigate to={`/e/${encodeURIComponent(eventSlug)}`} replace />;
@@ -17,6 +20,7 @@ export function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/admin/*" element={<AdminRoutes />} />
+        <Route path="/display" element={<Navigate to="/display/fire-expo-2026" replace />} />
         <Route path="/display/:eventSlug/*" element={<DisplayRoutes />} />
         <Route path="/e/:eventSlug/*" element={<ParticipantRoutes />} />
         <Route path="/:eventSlug" element={<LegacyParticipantRedirect />} />

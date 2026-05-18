@@ -10,9 +10,14 @@ import { ProgressHeader } from "../../components/participant/ProgressHeader";
 import { QuestionRenderer } from "../../components/participant/QuestionRenderer";
 import { usePreloadedQuestions } from "../../hooks/usePreloadedQuestions";
 import { useQuestionProgress } from "../../hooks/useQuestionProgress";
+import { useSurveyContent } from "../../hooks/useSurveyContent";
 import { toUserMessage } from "../../lib/errors";
 import { statusAtLeast } from "../../lib/routeGuards";
-import { getQuestionsForSurveySection, TOTAL_SURVEY_SECTIONS } from "../../lib/surveySections";
+import {
+  getConfiguredSurveySection,
+  getQuestionsForSurveySection,
+  TOTAL_SURVEY_SECTIONS
+} from "../../lib/surveySections";
 import { getStoredSessionId } from "../../lib/storage";
 import type { SessionStatusResponse } from "../../types/session";
 
@@ -25,6 +30,7 @@ export function QuestionsPage() {
   const [sessionLoading, setSessionLoading] = useState(true);
 
   const { questions, loading, error, retry } = usePreloadedQuestions(eventSlug, sessionId);
+  const { surveyConfig } = useSurveyContent(eventSlug);
   const progress = useQuestionProgress(eventSlug, sessionId, questions);
   const [attemptedAdvance, setAttemptedAdvance] = useState(false);
   const pendingSectionScrollRef = useRef(false);
@@ -108,6 +114,7 @@ export function QuestionsPage() {
     .map((question) => question.questionNo);
 
   const missingQuestionNos = progress.missingRequiredQuestionNosForSection;
+  const displaySection = getConfiguredSurveySection(surveyConfig, progress.currentSection) ?? progress.currentSection;
 
   function validateSection(): boolean {
     setAttemptedAdvance(true);
@@ -132,10 +139,10 @@ export function QuestionsPage() {
   return (
     <main className="screen screen--questions">
       <ProgressHeader
-        sectionNo={progress.currentSection.sectionNo}
+        sectionNo={displaySection.sectionNo}
         totalSections={TOTAL_SURVEY_SECTIONS}
-        title={progress.currentSection.title}
-        description={progress.currentSection.description}
+        title={displaySection.title}
+        description={displaySection.description}
         sectionAnswered={progress.sectionAnsweredCount}
         sectionTotal={progress.sectionTotalCount}
         answered={progress.answeredCount}
@@ -143,9 +150,9 @@ export function QuestionsPage() {
       />
       <section className="question-surface survey-section">
         <div className="survey-section__header survey-section-header">
-          <p className="eyebrow">문항 {progress.currentSection.questionNoRange?.join("~")}</p>
-          <h1>{progress.currentSection.title}</h1>
-          {progress.currentSection.description ? <p>{progress.currentSection.description}</p> : null}
+          <p className="eyebrow">문항 {displaySection.questionNoRange?.join("~")}</p>
+          <h1>{displaySection.title}</h1>
+          {displaySection.description ? <p>{displaySection.description}</p> : null}
         </div>
         {hiddenQuestionNos.length ? (
           <NoticeBox tone="info">
@@ -161,13 +168,9 @@ export function QuestionsPage() {
                 className="survey-question-card"
                 aria-labelledby={`question-${question.id}-title`}
               >
-                <div className="survey-question-card__header">
-                  <p className="eyebrow">문항 {question.questionNo}</p>
-                  <h2 id={`question-${question.id}-title`}>{question.title}</h2>
-                  {question.description ? <p>{question.description}</p> : null}
-                </div>
                 <QuestionRenderer
                   question={question}
+                  presentation={surveyConfig.questionOverrides[String(question.questionNo)]}
                   value={value}
                   onChange={(nextValue) => progress.updateAnswer(question, nextValue)}
                 />

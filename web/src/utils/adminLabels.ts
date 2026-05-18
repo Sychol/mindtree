@@ -41,6 +41,12 @@ const SOURCE_TYPE_LABELS: Record<string, string> = {
   keyword_job: "키워드 작업",
   mind_card: "마음카드",
   reply: "응원문장",
+  survey_config: "설문 표시 설정",
+  survey_consent: "설문 동의서",
+  survey_intro: "설문 소개",
+  survey_question: "설문 문항",
+  survey_section: "설문 섹션",
+  survey_thanks: "설문 완료 안내",
 };
 
 const PROMPT_TYPE_LABELS: Record<string, string> = {
@@ -86,6 +92,12 @@ const ACTION_LABELS: Record<string, string> = {
   "reply.edit": "응원문장 수정",
   "reply.hide": "응원문장 숨김",
   "reply.publish": "응원문장 공개",
+  "survey_config.reset": "설문 표시 설정 초기화",
+  "survey_consent.update": "설문 동의서 수정",
+  "survey_intro.update": "설문 소개 수정",
+  "survey_question_presentation.update": "설문 문항 표시문구 수정",
+  "survey_section.update": "설문 섹션 수정",
+  "survey_thanks.update": "설문 완료 안내 수정",
 };
 
 const ERROR_CODE_LABELS: Record<string, string> = {
@@ -120,6 +132,12 @@ export const AUDIT_ACTION_FILTERS = [
   "keyword_job.retry",
   "completion_code.redeem",
   "completion_code.void",
+  "survey_intro.update",
+  "survey_consent.update",
+  "survey_section.update",
+  "survey_question_presentation.update",
+  "survey_thanks.update",
+  "survey_config.reset",
   "admin.login_failed",
 ] as const;
 
@@ -131,6 +149,12 @@ export const AUDIT_TARGET_FILTERS = [
   "keyword",
   "keyword_job",
   "completion_code",
+  "survey_intro",
+  "survey_consent",
+  "survey_section",
+  "survey_question",
+  "survey_thanks",
+  "survey_config",
 ] as const;
 
 export function adminStatusLabel(value: string | null | undefined): string {

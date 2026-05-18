@@ -6,6 +6,7 @@ const ADMIN_NAV = [
   ["대시보드", "dashboard"],
   ["마음카드", "cards"],
   ["응원 문장", "replies"],
+  ["설문 관리", "survey"],
   ["키워드", "keywords"],
   ["작업 상태", "jobs"],
   ["상품 지급", "rewards"],

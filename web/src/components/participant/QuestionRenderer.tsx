@@ -1,11 +1,13 @@
 import type { AnswerValue } from "../../types/answer";
 import type { Question } from "../../types/question";
+import type { SurveyQuestionOverride } from "../../types/survey";
 import { NoticeBox } from "../common/NoticeBox";
 import { HorizontalScaleQuestion } from "./HorizontalScaleQuestion";
 
 type QuestionRendererProps = {
   question: Question;
   value: AnswerValue | undefined;
+  presentation?: SurveyQuestionOverride;
   onChange: (value: AnswerValue | undefined) => void;
 };
 
@@ -37,7 +39,12 @@ function isScaleQuestion(question: Question): boolean {
   );
 }
 
-export function QuestionRenderer({ question, value, onChange }: QuestionRendererProps) {
+function questionText(value: string | null | undefined, fallback: string | null | undefined) {
+  const trimmed = value?.trim();
+  return trimmed || fallback || "";
+}
+
+function QuestionInput({ question, value, onChange }: Omit<QuestionRendererProps, "presentation">) {
   if (isScaleQuestion(question)) {
     return <HorizontalScaleQuestion question={question} value={value} onChange={onChange} />;
   }
@@ -111,5 +118,22 @@ export function QuestionRenderer({ question, value, onChange }: QuestionRenderer
         </button>
       ))}
     </div>
+  );
+}
+
+export function QuestionRenderer({ question, value, presentation, onChange }: QuestionRendererProps) {
+  const displayTitle = questionText(presentation?.title, question.title);
+  const displayDescription = questionText(presentation?.description, question.description);
+  const titleId = `question-${question.id}-title`;
+
+  return (
+    <>
+      <div className="survey-question-card__header">
+        <p className="eyebrow">문항 {question.questionNo}</p>
+        <h2 id={titleId}>{displayTitle}</h2>
+        {displayDescription ? <p>{displayDescription}</p> : null}
+      </div>
+      <QuestionInput question={question} value={value} onChange={onChange} />
+    </>
   );
 }

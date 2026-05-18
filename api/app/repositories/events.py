@@ -12,3 +12,9 @@ class EventRepository(BaseRepository[Event]):
     def get_by_slug(self, slug: str) -> Event | None:
         statement = select(Event).where(Event.slug == slug)
         return self.db.execute(statement).scalar_one_or_none()
+
+    def save_settings(self, event: Event, settings: dict) -> Event:
+        event.settings = settings
+        self.db.add(event)
+        self.db.flush()
+        return event

@@ -24,6 +24,16 @@ import type {
   AdminResponsesListFilters,
   AdminResponsesListResponse,
 } from "../types/admin";
+import type {
+  AdminSurveyMutationResponse,
+  AdminSurveyResponse,
+  SurveyConsentUpdateRequest,
+  SurveyIntroUpdateRequest,
+  SurveyQuestionPresentationUpdateRequest,
+  SurveyResetRequest,
+  SurveySectionUpdateRequest,
+  SurveyThanksUpdateRequest,
+} from "../types/survey";
 
 type QueryFilters = Record<string, string | number | boolean | null | undefined>;
 
@@ -130,6 +140,86 @@ export function getAdminMe(token = adminToken()): Promise<AdminMeResponse> {
 
 export function getAdminDashboard(eventSlug: string): Promise<AdminDashboardResponse> {
   return requestJson<AdminDashboardResponse>(`/admin/events/${encoded(eventSlug)}/dashboard`, {
+    authToken: adminToken(),
+  });
+}
+
+export function getAdminSurvey(eventSlug: string): Promise<AdminSurveyResponse> {
+  return requestJson<AdminSurveyResponse>(`/admin/events/${encoded(eventSlug)}/survey`, {
+    authToken: adminToken(),
+  });
+}
+
+export function updateAdminSurveyIntro(
+  eventSlug: string,
+  payload: SurveyIntroUpdateRequest
+): Promise<AdminSurveyMutationResponse> {
+  return requestJson<AdminSurveyMutationResponse>(`/admin/events/${encoded(eventSlug)}/survey/intro`, {
+    method: "PATCH",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
+export function updateAdminSurveyConsent(
+  eventSlug: string,
+  payload: SurveyConsentUpdateRequest
+): Promise<AdminSurveyMutationResponse> {
+  return requestJson<AdminSurveyMutationResponse>(`/admin/events/${encoded(eventSlug)}/survey/consent`, {
+    method: "PATCH",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
+export function updateAdminSurveySection(
+  eventSlug: string,
+  sectionId: string,
+  payload: SurveySectionUpdateRequest
+): Promise<AdminSurveyMutationResponse> {
+  return requestJson<AdminSurveyMutationResponse>(
+    `/admin/events/${encoded(eventSlug)}/survey/sections/${encoded(sectionId)}`,
+    {
+      method: "PATCH",
+      body: payload,
+      authToken: adminToken(),
+    }
+  );
+}
+
+export function updateAdminSurveyQuestionPresentation(
+  eventSlug: string,
+  questionNo: number,
+  payload: SurveyQuestionPresentationUpdateRequest
+): Promise<AdminSurveyMutationResponse> {
+  return requestJson<AdminSurveyMutationResponse>(
+    `/admin/events/${encoded(eventSlug)}/survey/questions/${questionNo}/presentation`,
+    {
+      method: "PATCH",
+      body: payload,
+      authToken: adminToken(),
+    }
+  );
+}
+
+export function updateAdminSurveyThanks(
+  eventSlug: string,
+  payload: SurveyThanksUpdateRequest
+): Promise<AdminSurveyMutationResponse> {
+  return requestJson<AdminSurveyMutationResponse>(`/admin/events/${encoded(eventSlug)}/survey/thanks`, {
+    method: "PATCH",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
+export function resetAdminSurvey(
+  eventSlug: string,
+  payload: SurveyResetRequest
+): Promise<AdminSurveyMutationResponse> {
+  return requestJson<AdminSurveyMutationResponse>(`/admin/events/${encoded(eventSlug)}/survey/reset`, {
+    method: "POST",
+    body: payload,
     authToken: adminToken(),
   });
 }
