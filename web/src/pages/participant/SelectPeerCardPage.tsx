@@ -112,8 +112,9 @@ export function SelectPeerCardPage() {
       </div>
 
       {publicCards.data.fallbackUsed ? (
-        <NoticeBox tone="warning">
+        <NoticeBox tone="warning" title="아직 공개 카드가 부족합니다">
           <p>{publicCards.data.message}</p>
+          <p>잠시 후 다시 시도해 주세요. 운영자 예시 카드가 준비되면 이곳에 표시됩니다.</p>
         </NoticeBox>
       ) : (
         <PeerCardList

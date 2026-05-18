@@ -49,11 +49,11 @@ export function ReplyForm({
       </div>
 
       <label className="text-field">
-        <span>응원 문장</span>
+        <span>건네는 말</span>
         <textarea
           maxLength={300}
           onChange={(event) => onContentChange(event.target.value)}
-          placeholder="그 시간을 버틴 것만으로도 충분히 애쓰셨습니다."
+          placeholder="당신의 잘못이 아닙니다. 그 시간을 버틴 것만으로도 충분히 애쓰셨습니다."
           value={content}
         />
       </label>

@@ -7,16 +7,21 @@ from app.db.session import get_db
 from app.schemas.cards import (
     CreateMindCardRequest,
     CreateMindCardResponse,
+    DeleteMindCardResponse,
     MyMindCardsResponse,
     PublicMindCardsResponse,
     SelectCardRequest,
     SelectCardResponse,
+    UpdateMindCardRequest,
+    UpdateMindCardResponse,
 )
 from app.services.cards import (
     create_mind_card,
+    delete_mind_card,
     list_my_cards,
     list_public_cards,
     select_peer_card,
+    update_mind_card,
 )
 
 router = APIRouter()
@@ -37,6 +42,25 @@ def read_session_cards(
     db: Session = Depends(get_db),
 ) -> MyMindCardsResponse:
     return list_my_cards(db, session_id)
+
+
+@router.patch("/sessions/{sessionId}/cards/{cardId}", response_model=UpdateMindCardResponse)
+def update_session_card(
+    payload: UpdateMindCardRequest,
+    session_id: UUID = Path(alias="sessionId"),
+    card_id: UUID = Path(alias="cardId"),
+    db: Session = Depends(get_db),
+) -> UpdateMindCardResponse:
+    return update_mind_card(db, session_id, card_id, payload)
+
+
+@router.delete("/sessions/{sessionId}/cards/{cardId}", response_model=DeleteMindCardResponse)
+def delete_session_card(
+    session_id: UUID = Path(alias="sessionId"),
+    card_id: UUID = Path(alias="cardId"),
+    db: Session = Depends(get_db),
+) -> DeleteMindCardResponse:
+    return delete_mind_card(db, session_id, card_id)
 
 
 @router.get("/events/{eventSlug}/cards/public", response_model=PublicMindCardsResponse)

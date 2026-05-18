@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.card import CardSelection
@@ -15,6 +15,12 @@ class CardSelectionRepository(BaseRepository[CardSelection]):
     def get_by_session_id(self, session_id: UUID) -> CardSelection | None:
         statement = select(CardSelection).where(CardSelection.session_id == session_id)
         return self.db.execute(statement).scalar_one_or_none()
+
+    def count_by_selected_card_id(self, selected_card_id: UUID) -> int:
+        statement = select(func.count(CardSelection.id)).where(
+            CardSelection.selected_card_id == selected_card_id
+        )
+        return int(self.db.execute(statement).scalar_one() or 0)
 
     def upsert_selection(
         self,

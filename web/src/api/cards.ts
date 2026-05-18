@@ -2,10 +2,13 @@ import { requestJson } from "./client";
 import type {
   CreateMindCardRequest,
   CreateMindCardResponse,
+  DeleteMindCardResponse,
   MyMindCardsResponse,
   PublicCardsResponse,
   SelectCardRequest,
-  SelectCardResponse
+  SelectCardResponse,
+  UpdateMindCardRequest,
+  UpdateMindCardResponse
 } from "../types/card";
 
 export function createMindCard(
@@ -18,8 +21,35 @@ export function createMindCard(
   });
 }
 
-export function getMyCards(sessionId: string): Promise<MyMindCardsResponse> {
+export function listMyMindCards(sessionId: string): Promise<MyMindCardsResponse> {
   return requestJson<MyMindCardsResponse>(`/sessions/${encodeURIComponent(sessionId)}/cards`);
+}
+
+export function getMyCards(sessionId: string): Promise<MyMindCardsResponse> {
+  return listMyMindCards(sessionId);
+}
+
+export function updateMindCard(
+  sessionId: string,
+  cardId: string,
+  request: UpdateMindCardRequest
+): Promise<UpdateMindCardResponse> {
+  return requestJson<UpdateMindCardResponse>(
+    `/sessions/${encodeURIComponent(sessionId)}/cards/${encodeURIComponent(cardId)}`,
+    {
+      method: "PATCH",
+      body: request
+    }
+  );
+}
+
+export function deleteMindCard(sessionId: string, cardId: string): Promise<DeleteMindCardResponse> {
+  return requestJson<DeleteMindCardResponse>(
+    `/sessions/${encodeURIComponent(sessionId)}/cards/${encodeURIComponent(cardId)}`,
+    {
+      method: "DELETE"
+    }
+  );
 }
 
 export function getPublicCards(

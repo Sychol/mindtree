@@ -131,7 +131,7 @@ export function ReplyPage() {
     <main className="screen">
       <div className="screen__header">
         <p className="eyebrow">응원 문장</p>
-        <h1>선택한 카드에 짧은 응원을 남겨 주세요.</h1>
+        <h1>선택한 마음카드에 건네고 싶은 말을 남겨 주세요.</h1>
       </div>
 
       {selectedCard ? (

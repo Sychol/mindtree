@@ -102,7 +102,7 @@ function initialDraft(keyword: AdminKeywordItem): KeywordDraft {
 
 export function AdminKeywordsPage() {
   const { eventSlug = "fire-expo-2026" } = useParams();
-  const [status, setStatus] = useState("active");
+  const [status, setStatus] = useState("all");
   const [category, setCategory] = useState("");
   const [origin, setOrigin] = useState<(typeof ORIGINS)[number]>("all");
   const [items, setItems] = useState<AdminKeywordItem[]>([]);

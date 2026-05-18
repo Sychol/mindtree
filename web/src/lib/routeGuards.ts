@@ -36,7 +36,10 @@ export function routeForSessionStatus(
     return `${base}/cards/new`;
   }
   if (session.status === "card_created") {
-    return progress?.selectedCard ? `${base}/replies/new` : `${base}/cards/select`;
+    if (progress?.selectedCard) {
+      return `${base}/replies/new`;
+    }
+    return (progress?.mindCardCount ?? 0) >= 3 ? `${base}/cards/select` : `${base}/cards/new`;
   }
   if (statusAtLeast(session.status, "reply_created") || progress?.completionCodeIssued) {
     return `${base}/complete`;

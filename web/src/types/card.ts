@@ -1,3 +1,5 @@
+import type { SessionStatus } from "./session";
+
 export type MindCardPromptType =
   | "to_past_me"
   | "to_now_me"
@@ -18,13 +20,22 @@ export type CreateMindCardRequest = {
   content: string;
 };
 
+export type UpdateMindCardRequest = CreateMindCardRequest;
+
 export type CreateMindCardResponse = {
   card: MindCard;
   keywordJob?: {
     id: string;
     status: string;
   } | null;
-  sessionStatus: string;
+  sessionStatus: SessionStatus;
+};
+
+export type UpdateMindCardResponse = CreateMindCardResponse;
+
+export type DeleteMindCardResponse = {
+  deletedCardId: string;
+  sessionStatus: SessionStatus;
 };
 
 export type MyMindCardsResponse = {
@@ -38,11 +49,15 @@ export type PublicCard = {
   createdAt: string;
 };
 
+export type PublicMindCard = PublicCard;
+
 export type PublicCardsResponse = {
   cards: PublicCard[];
   fallbackUsed: boolean;
   message?: string | null;
 };
+
+export type PublicMindCardsResponse = PublicCardsResponse;
 
 export type SelectCardRequest = {
   selectedCardId: string;

@@ -11,6 +11,13 @@ class CreateMindCardRequest(BaseModel):
     content: str
 
 
+class UpdateMindCardRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    prompt_type: str = Field(alias="promptType")
+    content: str
+
+
 class MindCardPayload(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -32,6 +39,21 @@ class CreateMindCardResponse(BaseModel):
 
     card: MindCardPayload
     keyword_job: KeywordJobPayload | None = Field(default=None, alias="keywordJob")
+    session_status: str = Field(alias="sessionStatus")
+
+
+class UpdateMindCardResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    card: MindCardPayload
+    keyword_job: KeywordJobPayload | None = Field(default=None, alias="keywordJob")
+    session_status: str = Field(alias="sessionStatus")
+
+
+class DeleteMindCardResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    deleted_card_id: UUID = Field(alias="deletedCardId")
     session_status: str = Field(alias="sessionStatus")
 
 

@@ -51,6 +51,10 @@ class MindCardRepository(BaseRepository[MindCard]):
     def get_by_id(self, card_id: UUID) -> MindCard | None:
         return self.db.get(MindCard, card_id)
 
+    def delete_card(self, card: MindCard) -> None:
+        self.db.delete(card)
+        self.db.flush()
+
     def list_by_session_id(self, session_id: UUID) -> list[MindCard]:
         statement = (
             select(MindCard)
@@ -60,7 +64,8 @@ class MindCardRepository(BaseRepository[MindCard]):
         return list(self.db.execute(statement).scalars())
 
     def count_by_session_id(self, session_id: UUID) -> int:
-        return len(self.list_by_session_id(session_id))
+        statement = select(func.count(MindCard.id)).where(MindCard.session_id == session_id)
+        return int(self.db.execute(statement).scalar_one() or 0)
 
     def list_public_cards(
         self,

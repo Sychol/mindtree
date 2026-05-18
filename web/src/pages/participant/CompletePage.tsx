@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { getSession } from "../../api/sessions";
+import { Button } from "../../components/common/Button";
 import { ErrorState } from "../../components/common/ErrorState";
 import { LoadingState } from "../../components/common/LoadingState";
 import { NoticeBox } from "../../components/common/NoticeBox";
@@ -21,6 +22,7 @@ export function CompletePage() {
   const [sessionState, setSessionState] = useState<SessionStatusResponse | undefined>();
   const [loading, setLoading] = useState(true);
   const [guardError, setGuardError] = useState<string | undefined>();
+  const [showRewardNotice, setShowRewardNotice] = useState(false);
 
   const completion = useCompletionCode(
     sessionId,
@@ -111,6 +113,29 @@ export function CompletePage() {
       <NoticeBox tone="safe">
         <p>상품 지급 과정에서 이름, 전화번호, 소속 같은 개인정보를 요구하지 않습니다.</p>
       </NoticeBox>
+
+      <section className="panel completion-actions" aria-label="완료 후 이동">
+        <a
+          className="button button--secondary button--full"
+          href={`/display/${encodeURIComponent(eventSlug)}`}
+          rel="noreferrer"
+          target="_blank"
+        >
+          TV 마음나무 보기
+        </a>
+        <Button disabled fullWidth type="button" variant="secondary">
+          리본톡 더 알아보기
+        </Button>
+        <Button fullWidth onClick={() => setShowRewardNotice(true)} type="button">
+          참여 상품 받기
+        </Button>
+      </section>
+
+      {showRewardNotice ? (
+        <NoticeBox tone="info" title="참여 상품 받기">
+          <p>현장 운영자에게 완료 코드를 보여 주세요. 지급 확인은 이름이나 전화번호가 아니라 완료 코드로 진행됩니다.</p>
+        </NoticeBox>
+      ) : null}
     </main>
   );
 }

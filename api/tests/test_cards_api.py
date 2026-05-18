@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session
 
 from app.models.card import CardSelection, MindCard
 from app.models.consent import ConsentLog
-from app.models.enums import SessionStatus
+from app.models.enums import KeywordStatus, SessionStatus
 from app.models.event import Event
-from app.models.keyword import KeywordJob
+from app.models.keyword import Keyword, KeywordJob
 from app.models.risk import RiskFlag
 from app.models.score import ScaleScore
 from app.models.session import Session as EventSession
@@ -128,7 +128,268 @@ def test_summary_viewed_session_can_create_card(
     stored_session = db_session.get(EventSession, session.id)
     assert stored_session is not None
     assert stored_session.status == "card_created"
-    assert stored_session.last_step == "cards/select"
+    assert stored_session.last_step == "cards/new"
+
+
+def test_session_can_create_up_to_three_cards_and_fourth_fails(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory()
+    session = _session(db_session, event)
+
+    for index in range(3):
+        response = client.post(
+            f"/api/sessions/{session.id}/cards",
+            json={
+                "promptType": "stress_memory",
+                "content": f"마음에 남은 장면 {index + 1}을 짧게 적었습니다.",
+            },
+        )
+        assert response.status_code == 200
+        assert response.json()["sessionStatus"] == "card_created"
+
+    fourth = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "네 번째 카드는 저장되지 않아야 합니다."},
+    )
+
+    assert fourth.status_code == 400
+    assert fourth.json()["error"]["code"] == "BAD_REQUEST"
+    assert fourth.json()["error"]["message"] == "마음카드는 최대 3개까지 작성할 수 있습니다."
+    stored_cards = db_session.execute(
+        select(MindCard).where(MindCard.session_id == session.id)
+    ).scalars().all()
+    assert len(stored_cards) == 3
+
+
+def test_event_setting_limits_session_card_count(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory(settings={"maxMindCardsPerSession": 2})
+    session = _session(db_session, event)
+
+    first = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "첫 번째 카드입니다."},
+    )
+    second = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "두 번째 카드입니다."},
+    )
+    third = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "세 번째 카드는 제한됩니다."},
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert third.status_code == 400
+    assert third.json()["error"]["message"] == "마음카드는 최대 2개까지 작성할 수 있습니다."
+
+
+def test_event_setting_card_limit_is_capped_at_three(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory(settings={"maxMindCardsPerSession": 5})
+    session = _session(db_session, event)
+
+    for index in range(3):
+        response = client.post(
+            f"/api/sessions/{session.id}/cards",
+            json={"promptType": "stress_memory", "content": f"{index + 1}번째 카드입니다."},
+        )
+        assert response.status_code == 200
+
+    response = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "네 번째 카드는 제한됩니다."},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"]["message"] == "마음카드는 최대 3개까지 작성할 수 있습니다."
+
+
+def test_list_my_cards_returns_created_cards(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory()
+    session = _session(db_session, event)
+
+    client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "마음에 남은 상황을 적었습니다."},
+    )
+    client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "to_now_me", "content": "지금의 나에게 건네는 말입니다."},
+    )
+
+    response = client.get(f"/api/sessions/{session.id}/cards")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["cards"]) == 2
+    assert {card["promptType"] for card in data["cards"]} == {"stress_memory", "to_now_me"}
+    assert all(card["content"] for card in data["cards"])
+
+
+def test_update_my_card_reapplies_safety_and_keeps_flow(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory()
+    session = _session(db_session, event)
+    create_response = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "처음 적은 카드입니다."},
+    )
+    card_id = create_response.json()["card"]["id"]
+
+    update_response = client.patch(
+        f"/api/sessions/{session.id}/cards/{card_id}",
+        json={"promptType": "to_now_me", "content": "지금은 잠시 숨을 고르고 싶습니다."},
+    )
+
+    assert update_response.status_code == 200
+    data = update_response.json()
+    assert data["card"]["promptType"] == "to_now_me"
+    assert data["card"]["content"] == "지금은 잠시 숨을 고르고 싶습니다."
+    assert data["card"]["safetyStatus"] == "safe"
+    assert data["card"]["publicStatus"] == "public"
+    assert data["sessionStatus"] == "card_created"
+
+    list_response = client.get(f"/api/sessions/{session.id}/cards")
+    assert list_response.json()["cards"][0]["content"] == "지금은 잠시 숨을 고르고 싶습니다."
+
+
+def test_update_my_card_hides_existing_keywords_and_creates_new_job_when_needed(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory()
+    session = _session(db_session, event)
+    create_response = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "처음 적은 카드입니다."},
+    )
+    card_id = create_response.json()["card"]["id"]
+    first_job_id = create_response.json()["keywordJob"]["id"]
+    first_job = db_session.get(KeywordJob, first_job_id)
+    assert first_job is not None
+    first_job.status = "succeeded"
+    db_session.add(
+        Keyword(
+            event_id=event.id,
+            source_type="mind_card",
+            source_id=first_job.source_id,
+            keyword_text="처음",
+            normalized_keyword="처음",
+            category="mind_signal",
+            job_id=first_job.id,
+        )
+    )
+    db_session.commit()
+
+    update_response = client.patch(
+        f"/api/sessions/{session.id}/cards/{card_id}",
+        json={"promptType": "stress_memory", "content": "수정한 카드입니다."},
+    )
+
+    assert update_response.status_code == 200
+    assert update_response.json()["keywordJob"]["id"] != first_job_id
+    keywords = db_session.execute(select(Keyword).where(Keyword.source_id == first_job.source_id)).scalars().all()
+    assert keywords[0].status == KeywordStatus.HIDDEN.value
+
+
+def test_delete_my_card_removes_card_and_relocks_next_step(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory()
+    session = _session(db_session, event)
+    create_response = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "삭제할 카드입니다."},
+    )
+    card_id = create_response.json()["card"]["id"]
+
+    delete_response = client.delete(f"/api/sessions/{session.id}/cards/{card_id}")
+
+    assert delete_response.status_code == 200
+    assert delete_response.json()["deletedCardId"] == card_id
+    assert delete_response.json()["sessionStatus"] == "summary_viewed"
+    assert client.get(f"/api/sessions/{session.id}/cards").json()["cards"] == []
+
+    db_session.expire_all()
+    stored_session = db_session.get(EventSession, session.id)
+    assert stored_session is not None
+    assert stored_session.status == "summary_viewed"
+    assert stored_session.last_step == "cards/new"
+
+
+def test_update_or_delete_card_after_selecting_peer_card_fails(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory()
+    session = _session(db_session, event)
+    peer_session = _session(db_session, event, status=SessionStatus.CARD_CREATED.value)
+    own_response = client.post(
+        f"/api/sessions/{session.id}/cards",
+        json={"promptType": "stress_memory", "content": "내 카드입니다."},
+    )
+    peer_card = _card(db_session, event, peer_session, content="선택 가능한 카드입니다.")
+    select_response = client.post(
+        f"/api/sessions/{session.id}/selected-card",
+        json={"selectedCardId": str(peer_card.id)},
+    )
+    assert select_response.status_code == 200
+
+    card_id = own_response.json()["card"]["id"]
+    update_response = client.patch(
+        f"/api/sessions/{session.id}/cards/{card_id}",
+        json={"promptType": "stress_memory", "content": "수정 시도입니다."},
+    )
+    delete_response = client.delete(f"/api/sessions/{session.id}/cards/{card_id}")
+
+    assert update_response.status_code == 409
+    assert delete_response.status_code == 409
+
+
+def test_card_selected_by_another_session_cannot_be_deleted(
+    client: TestClient,
+    db_session: Session,
+    event_factory,
+) -> None:
+    event = event_factory()
+    owner_session = _session(db_session, event)
+    selector_session = _session(db_session, event, status=SessionStatus.CARD_CREATED.value)
+    create_response = client.post(
+        f"/api/sessions/{owner_session.id}/cards",
+        json={"promptType": "stress_memory", "content": "다른 참여자가 볼 카드입니다."},
+    )
+    card_id = create_response.json()["card"]["id"]
+    select_response = client.post(
+        f"/api/sessions/{selector_session.id}/selected-card",
+        json={"selectedCardId": card_id},
+    )
+    assert select_response.status_code == 200
+
+    delete_response = client.delete(f"/api/sessions/{owner_session.id}/cards/{card_id}")
+
+    assert delete_response.status_code == 400
 
 
 def test_questions_completed_session_cannot_create_card(

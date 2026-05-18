@@ -16,11 +16,22 @@ NOTICES = PublicEventNotices(
     anonymous_keyword_display="TV에는 원문이 아닌 익명 키워드만 표시됩니다.",
 )
 
+DEFAULT_MAX_MIND_CARDS_PER_SESSION = 3
+
+
+def _max_mind_cards_setting(settings: dict) -> int:
+    raw_value = settings.get("maxMindCardsPerSession", DEFAULT_MAX_MIND_CARDS_PER_SESSION)
+    try:
+        value = int(raw_value)
+    except (TypeError, ValueError):
+        value = DEFAULT_MAX_MIND_CARDS_PER_SESSION
+    return max(1, min(value, DEFAULT_MAX_MIND_CARDS_PER_SESSION))
+
 
 def _public_settings(settings: dict) -> PublicEventSettings:
     return PublicEventSettings(
         display_enabled=bool(settings.get("displayEnabled", False)),
-        max_mind_cards_per_session=int(settings.get("maxMindCardsPerSession", 3)),
+        max_mind_cards_per_session=_max_mind_cards_setting(settings),
         help_notice_enabled=bool(settings.get("helpNoticeEnabled", True)),
     )
 
