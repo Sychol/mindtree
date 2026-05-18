@@ -90,6 +90,8 @@ export type AdminKeywordItem = {
   extractionMethod: string;
   sourceType: string;
   sourceId: string | null;
+  sourceLabel?: string | null;
+  sourceContentPreview?: string | null;
   origin?: ContentOrigin;
   originTag?: string | null;
   createdByAdminId?: string | null;

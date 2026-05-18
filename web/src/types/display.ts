@@ -2,6 +2,7 @@ export type DisplayKeyword = {
   text: string;
   weight: number;
   category?: string | null;
+  displayPart?: "trunk" | "canopy" | string | null;
 };
 
 export type DisplaySnapshot = {

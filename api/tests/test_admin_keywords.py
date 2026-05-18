@@ -41,7 +41,10 @@ def test_admin_keyword_list_update_and_tv_hidden_exclusion(
         headers=auth_headers(admin),
     )
     assert listing.status_code == 200
-    assert listing.json()["items"][0]["normalizedKeyword"] == "rest"
+    item = listing.json()["items"][0]
+    assert item["normalizedKeyword"] == "rest"
+    assert item["sourceLabel"] == "마음카드 · to_colleague"
+    assert item["sourceContentPreview"] == card.content_raw
 
     response = client.patch(
         f"/api/admin/keywords/{keyword.id}",

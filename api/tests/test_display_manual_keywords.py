@@ -159,7 +159,9 @@ def test_display_snapshot_response_does_not_expose_manual_origin_fields(
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["cloudKeywords"] == [{"text": "쉼", "weight": 5.0, "category": "recovery"}]
+    assert payload["cloudKeywords"] == [
+        {"text": "쉼", "weight": 5.0, "category": "recovery", "displayPart": "canopy"}
+    ]
     response_text = response.text
     assert "origin" not in response_text
     assert "originTag" not in response_text

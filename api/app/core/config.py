@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     llm_enabled: bool = Field(default=False, alias="LLM_ENABLED")
     llm_provider: str = Field(default="disabled", alias="LLM_PROVIDER")
     llm_api_key: str = Field(default="", alias="LLM_API_KEY")
+    llm_keyword_model: str = Field(default="gpt-4.1-nano", alias="LLM_KEYWORD_MODEL")
+    llm_summary_model: str = Field(default="gpt-4.1-nano", alias="LLM_SUMMARY_MODEL")
     llm_timeout_seconds: int = Field(default=5, alias="LLM_TIMEOUT_SECONDS")
 
     keyword_worker_enabled: bool = Field(default=False, alias="KEYWORD_WORKER_ENABLED")
@@ -81,6 +83,18 @@ class Settings(BaseSettings):
             for origin in raw_value.split(",")
             if origin.strip()
         ]
+
+    @property
+    def keyword_llm_model(self) -> str:
+        return self.llm_keyword_model.strip() or "gpt-4.1-nano"
+
+    @property
+    def summary_llm_model(self) -> str:
+        return self.llm_summary_model.strip() or "gpt-4.1-nano"
+
+    @property
+    def has_llm_api_key(self) -> bool:
+        return bool(self.llm_api_key.strip())
 
 
 @lru_cache

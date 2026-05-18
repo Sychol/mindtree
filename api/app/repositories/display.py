@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import and_, distinct, func, or_, select, union_all
+from sqlalchemy import and_, case, distinct, func, literal, or_, select, union_all
 from sqlalchemy.orm import Session as SQLAlchemySession
 
 from app.models.card import MindCard
@@ -29,6 +29,7 @@ class DisplayKeywordRow:
     text: str
     category: str
     weight: Decimal
+    display_part: str
 
 
 class DisplayRepository:
@@ -70,6 +71,7 @@ class DisplayRepository:
                 Keyword.normalized_keyword.label("text"),
                 Keyword.category.label("category"),
                 Keyword.weight.label("weight"),
+                literal("trunk").label("display_part"),
             )
             .select_from(Keyword)
             .join(
@@ -95,6 +97,7 @@ class DisplayRepository:
                 Keyword.normalized_keyword.label("text"),
                 Keyword.category.label("category"),
                 Keyword.weight.label("weight"),
+                literal("canopy").label("display_part"),
             )
             .select_from(Keyword)
             .join(
@@ -120,6 +123,10 @@ class DisplayRepository:
                 Keyword.normalized_keyword.label("text"),
                 Keyword.category.label("category"),
                 Keyword.weight.label("weight"),
+                case(
+                    (Keyword.category == "mind_signal", "trunk"),
+                    else_="canopy",
+                ).label("display_part"),
             )
             .select_from(Keyword)
             .where(
@@ -142,6 +149,7 @@ class DisplayRepository:
                 text=str(row[0]),
                 category=str(row[1]),
                 weight=Decimal(row[2]),
+                display_part=str(row[3]),
             )
             for row in rows
         ]

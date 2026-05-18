@@ -87,6 +87,10 @@ function keywordOrigin(keyword: AdminKeywordItem): ContentOrigin {
   return keyword.origin ?? "participant";
 }
 
+function keywordSourceLabel(keyword: AdminKeywordItem): string {
+  return keyword.sourceLabel ?? adminSourceTypeLabel(keyword.sourceType);
+}
+
 function isManualStatusOrigin(origin: ContentOrigin): boolean {
   return origin === "admin_manual" || origin === "system_seed";
 }
@@ -416,8 +420,19 @@ export function AdminKeywordsPage() {
                       ) : null}
                     </td>
                     <td>
-                      {adminSourceTypeLabel(keyword.sourceType)}
-                      <span className="admin-muted">{sourceIdLabel}</span>
+                      <div className="admin-keyword-source">
+                        <span>{keywordSourceLabel(keyword)}</span>
+                        {keyword.sourceContentPreview ? (
+                          <p className="admin-source-preview" title={keyword.sourceContentPreview}>
+                            {keyword.sourceContentPreview}
+                          </p>
+                        ) : (
+                          <span className="admin-muted">직접 추가 또는 원본 없음</span>
+                        )}
+                        <span className="admin-muted">
+                          {sourceIdLabel} · {keyword.extractionMethod}
+                        </span>
+                      </div>
                     </td>
                     <td>
                       {manualStatus ? (

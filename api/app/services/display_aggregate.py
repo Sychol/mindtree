@@ -9,22 +9,17 @@ from fastapi import status
 from sqlalchemy.orm import Session as SQLAlchemySession
 
 from app.core.errors import AppError, ErrorCode
-from app.models.enums import KeywordCategory
 from app.repositories.display import DisplayKeywordRow, DisplayRepository
 from app.schemas.display import DisplayKeyword, DisplaySnapshotResponse
 
 TOP_KEYWORD_LIMIT = 5
 CLOUD_KEYWORD_LIMIT = 40
-SUPPORT_CATEGORIES = {
-    KeywordCategory.SUPPORT.value,
-    KeywordCategory.RECOVERY.value,
-    KeywordCategory.COPING.value,
-}
 
 
 @dataclass
 class _KeywordBucket:
     text: str
+    display_part: str
     total_weight: Decimal = Decimal("0")
     category_weights: dict[str, Decimal] = field(default_factory=lambda: defaultdict(lambda: Decimal("0")))
 
@@ -49,7 +44,8 @@ def _aggregate_rows(rows: list[DisplayKeywordRow]) -> dict[str, _KeywordBucket]:
     for row in rows:
         if not row.text:
             continue
-        bucket = buckets.setdefault(row.text, _KeywordBucket(text=row.text))
+        bucket_key = f"{row.display_part}:{row.text}"
+        bucket = buckets.setdefault(bucket_key, _KeywordBucket(text=row.text, display_part=row.display_part))
         bucket.add(row)
     return buckets
 
@@ -58,11 +54,15 @@ def _rank_keywords(
     buckets: dict[str, _KeywordBucket],
     *,
     categories: set[str] | None,
+    display_parts: set[str] | None = None,
     limit: int,
     include_category: bool,
+    include_display_part: bool = False,
 ) -> list[DisplayKeyword]:
-    ranked: list[tuple[str, Decimal, str]] = []
-    for text, bucket in buckets.items():
+    ranked: list[tuple[str, Decimal, str, str]] = []
+    for bucket in buckets.values():
+        if display_parts is not None and bucket.display_part not in display_parts:
+            continue
         if categories is None:
             weight = bucket.total_weight
         else:
@@ -73,7 +73,7 @@ def _rank_keywords(
             )
         if weight <= 0:
             continue
-        ranked.append((text, weight, bucket.primary_category))
+        ranked.append((bucket.text, weight, bucket.primary_category, bucket.display_part))
 
     ranked.sort(key=lambda item: (-item[1], item[0]))
     return [
@@ -81,8 +81,9 @@ def _rank_keywords(
             text=text,
             weight=_weight_to_float(weight),
             category=category if include_category else None,
+            displayPart=display_part if include_display_part else None,
         )
-        for text, weight, category in ranked[:limit]
+        for text, weight, category, display_part in ranked[:limit]
     ]
 
 
@@ -111,13 +112,15 @@ def build_display_snapshot(
         completedCount=repository.count_completed_sessions(event.id),
         topMindKeywords=_rank_keywords(
             buckets,
-            categories={KeywordCategory.MIND_SIGNAL.value},
+            categories=None,
+            display_parts={"trunk"},
             limit=TOP_KEYWORD_LIMIT,
             include_category=False,
         ),
         topSupportKeywords=_rank_keywords(
             buckets,
-            categories=SUPPORT_CATEGORIES,
+            categories=None,
+            display_parts={"canopy"},
             limit=TOP_KEYWORD_LIMIT,
             include_category=False,
         ),
@@ -126,6 +129,7 @@ def build_display_snapshot(
             categories=None,
             limit=CLOUD_KEYWORD_LIMIT,
             include_category=True,
+            include_display_part=True,
         ),
         generatedAt=datetime.now(timezone.utc),
     )

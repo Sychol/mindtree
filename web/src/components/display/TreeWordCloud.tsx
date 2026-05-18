@@ -7,10 +7,16 @@ type TreeWordCloudProps = {
 };
 
 function isMindSignalKeyword(keyword: DisplayKeyword): boolean {
+  if (keyword.displayPart) {
+    return keyword.displayPart === "trunk";
+  }
   return keyword.category === "mind_signal";
 }
 
 function isCanopyKeyword(keyword: DisplayKeyword): boolean {
+  if (keyword.displayPart) {
+    return keyword.displayPart === "canopy";
+  }
   return (
     keyword.category === "support" ||
     keyword.category === "recovery" ||

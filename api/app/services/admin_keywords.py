@@ -17,7 +17,9 @@ from app.models.enums import (
     KeywordSourceType,
     KeywordStatus,
 )
+from app.models.card import MindCard
 from app.models.keyword import Keyword, KeywordJob
+from app.models.reply import Reply
 from app.repositories.events import EventRepository
 from app.repositories.keyword_jobs import KeywordJobRepository
 from app.repositories.keywords import KeywordRepository
@@ -40,6 +42,7 @@ from app.services.safety_filter import evaluate_safety
 
 
 DEFAULT_MANUAL_ORIGIN_TAG = "운영자추가"
+MAX_SOURCE_CONTENT_PREVIEW_LENGTH = 160
 RESIDENT_REGISTRATION_NUMBER_PATTERN = re.compile(r"(?<!\d)\d{6}[-\s]?[1-4]\d{6}(?!\d)")
 RISKY_KEYWORD_PATTERN = re.compile(
     r"(자살|자해|죽음|사망|목숨|극단적\s*선택|죽고\s*싶|죽어버리고\s*싶|살기\s*싫|"
@@ -58,7 +61,45 @@ def _event_id_or_404(db: Session, event_slug: str) -> UUID:
     return event.id
 
 
-def _keyword_item(keyword: Keyword) -> AdminKeywordItem:
+def _compact_preview(value: str | None) -> str | None:
+    if value is None:
+        return None
+    compacted = re.sub(r"\s+", " ", value).strip()
+    if not compacted:
+        return None
+    if len(compacted) <= MAX_SOURCE_CONTENT_PREVIEW_LENGTH:
+        return compacted
+    return f"{compacted[:MAX_SOURCE_CONTENT_PREVIEW_LENGTH - 3]}..."
+
+
+def _keyword_source_context(db: Session, keyword: Keyword) -> tuple[str | None, str | None]:
+    if keyword.source_id is None:
+        return None, None
+
+    if keyword.source_type == KeywordSourceType.MIND_CARD.value:
+        card = db.get(MindCard, keyword.source_id)
+        if card is None:
+            return "마음카드", None
+        return f"마음카드 · {card.prompt_type}", _compact_preview(card.content_redacted or card.content_raw)
+
+    if keyword.source_type == KeywordSourceType.REPLY.value:
+        reply = db.get(Reply, keyword.source_id)
+        if reply is None:
+            return "응원문장", None
+        return f"응원문장 · {reply.reply_type}", _compact_preview(reply.content_redacted or reply.content_raw)
+
+    if keyword.source_type == KeywordSourceType.ADMIN_MANUAL.value:
+        return "운영자 직접 추가", None
+
+    return keyword.source_type, None
+
+
+def _keyword_item(keyword: Keyword, *, db: Session | None = None) -> AdminKeywordItem:
+    source_label = None
+    source_content_preview = None
+    if db is not None:
+        source_label, source_content_preview = _keyword_source_context(db, keyword)
+
     return AdminKeywordItem(
         id=keyword.id,
         keywordText=keyword.keyword_text,
@@ -69,6 +110,8 @@ def _keyword_item(keyword: Keyword) -> AdminKeywordItem:
         extractionMethod=keyword.extraction_method,
         sourceType=keyword.source_type,
         sourceId=keyword.source_id,
+        sourceLabel=source_label,
+        sourceContentPreview=source_content_preview,
         origin=keyword.origin,
         originTag=keyword.origin_tag,
         createdByAdminId=keyword.created_by_admin_id,
@@ -156,7 +199,7 @@ def list_admin_keywords(
         category=category,
         origin_filter=origin_filter,
     )
-    return AdminKeywordListResponse(items=[_keyword_item(item) for item in items], total=total)
+    return AdminKeywordListResponse(items=[_keyword_item(item, db=db) for item in items], total=total)
 
 
 def create_manual_keyword(

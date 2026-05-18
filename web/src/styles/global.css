@@ -1888,6 +1888,21 @@ a {
   gap: 8px;
 }
 
+.admin-keyword-source {
+  display: grid;
+  gap: 4px;
+  min-width: 240px;
+  max-width: 420px;
+}
+
+.admin-source-preview {
+  margin: 0;
+  color: #26362f;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .admin-inline-actions {
   display: flex;
   flex-wrap: wrap;

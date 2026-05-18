@@ -95,6 +95,14 @@ def _keyword_snapshot(candidates: list[KeywordCandidate]) -> list[dict[str, obje
     ]
 
 
+def _configured_llm_provider_label() -> str:
+    settings = get_settings()
+    provider = settings.llm_provider.strip().lower()
+    if provider in {"openai", "gpt", "gpt_nano"} and settings.keyword_llm_model:
+        return f"openai:{settings.keyword_llm_model}"
+    return provider or "unknown"
+
+
 def _load_source_context(db: SQLAlchemySession, job: KeywordJob) -> _SourceContext | None:
     if job.source_type == KeywordSourceType.MIND_CARD.value:
         card = MindCardRepository(db).get_by_id(job.source_id)
@@ -235,7 +243,7 @@ def _extract_candidates(
             fallback_reason = str(exc)
         except KeywordLlmFailed as exc:
             fallback_reason = str(exc)
-            provider = settings.llm_provider.strip().lower() or "unknown"
+            provider = _configured_llm_provider_label()
     else:
         fallback_reason = "LLM disabled"
 

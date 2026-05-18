@@ -98,6 +98,25 @@ def test_display_snapshot_aggregates_active_public_keywords(db_session: Session,
     assert {item.text for item in snapshot.cloudKeywords} == {"긴장", "쉼", "호흡"}
 
 
+def test_tree_display_part_follows_source_type_not_category(db_session: Session, event_factory) -> None:
+    event = event_factory()
+    card_session = _session(db_session, event)
+    reply_session = _session(db_session, event, status=SessionStatus.CARD_CREATED.value)
+    card = _card(db_session, event, card_session)
+    reply = _reply(db_session, card=card, session_id=reply_session.id)
+
+    _keyword(db_session, source=card, text="카드회복", category="recovery", weight="4")
+    _keyword(db_session, source=reply, text="응원긴장", category="mind_signal", weight="5")
+
+    snapshot = build_display_snapshot(db_session, event.slug)
+
+    cloud_by_text = {item.text: item for item in snapshot.cloudKeywords}
+    assert cloud_by_text["카드회복"].display_part == "trunk"
+    assert cloud_by_text["응원긴장"].display_part == "canopy"
+    assert [(item.text, item.weight) for item in snapshot.topMindKeywords] == [("카드회복", 4.0)]
+    assert [(item.text, item.weight) for item in snapshot.topSupportKeywords] == [("응원긴장", 5.0)]
+
+
 def test_display_snapshot_excludes_hidden_excluded_and_non_public_sources(
     db_session: Session,
     event_factory,

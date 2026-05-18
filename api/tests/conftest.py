@@ -19,6 +19,7 @@ os.environ.setdefault(
     or os.getenv("JWT_SECRET_KEY")
     or "change-me-in-local-only",
 )
+os.environ.setdefault("KEYWORD_WORKER_ENABLED", "false")
 
 from app import models  # noqa: E402,F401
 from app.core.config import get_settings  # noqa: E402

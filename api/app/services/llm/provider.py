@@ -7,6 +7,7 @@ from app.services.llm.mock import (
     MockKeywordLlmProvider,
     MockSummaryLlmProvider,
 )
+from app.services.llm.openai_provider import OpenAIKeywordLlmProvider
 
 
 def get_summary_llm_provider(settings: Settings) -> SummaryLlmProvider:
@@ -31,7 +32,13 @@ def get_keyword_llm_provider(settings: Settings) -> KeywordLlmProvider:
         return FailingMockKeywordLlmProvider()
     if provider == "mock_invalid":
         return InvalidMockKeywordLlmProvider()
+    if provider in {"openai", "gpt", "gpt_nano"}:
+        if not settings.has_llm_api_key:
+            return DisabledKeywordLlmProvider()
+        return OpenAIKeywordLlmProvider(
+            api_key=settings.llm_api_key,
+            model=settings.keyword_llm_model,
+            timeout_seconds=settings.llm_timeout_seconds,
+        )
 
-    # Live providers are intentionally a fallback-only placeholder in Phase 08.
-    # External LLM calls can be wired later without blocking the participant flow.
     return DisabledKeywordLlmProvider()

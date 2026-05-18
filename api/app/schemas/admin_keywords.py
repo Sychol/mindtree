@@ -18,6 +18,8 @@ class AdminKeywordItem(BaseModel):
     extraction_method: str = Field(alias="extractionMethod")
     source_type: str = Field(alias="sourceType")
     source_id: UUID | None = Field(alias="sourceId")
+    source_label: str | None = Field(default=None, alias="sourceLabel")
+    source_content_preview: str | None = Field(default=None, alias="sourceContentPreview")
     origin: str
     origin_tag: str | None = Field(default=None, alias="originTag")
     created_by_admin_id: UUID | None = Field(default=None, alias="createdByAdminId")
