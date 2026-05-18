@@ -6,6 +6,13 @@ type SurveyPreviewPanelProps = {
 
 export function SurveyPreviewPanel({ data }: SurveyPreviewPanelProps) {
   const { surveyConfig } = data;
+  const sectionSummariesById = new Map(
+    data.sectionSummaries.map((section) => [section.id, section])
+  );
+  const totalQuestionCount = data.questionsBySection.reduce(
+    (sum, section) => sum + section.questions.length,
+    0
+  );
 
   return (
     <div className="admin-survey-preview">
@@ -21,7 +28,7 @@ export function SurveyPreviewPanel({ data }: SurveyPreviewPanelProps) {
       <section className="admin-survey-preview__block">
         <p className="admin-eyebrow">섹션 2 / 8</p>
         <h3>{surveyConfig.consent.title}</h3>
-        {surveyConfig.consent.sections.slice(0, 3).map((section) => (
+        {surveyConfig.consent.sections.map((section) => (
           <article key={section.heading}>
             <h4>{section.heading}</h4>
             {section.paragraphs.map((paragraph) => (
@@ -40,11 +47,15 @@ export function SurveyPreviewPanel({ data }: SurveyPreviewPanelProps) {
       </section>
 
       <section className="admin-survey-preview__block">
-        <p className="admin-eyebrow">문항 섹션</p>
+        <p className="admin-eyebrow">문항 섹션 · 총 {totalQuestionCount}문항</p>
         {data.questionsBySection.map((section) => (
           <article key={section.sectionId} className="admin-survey-preview__section">
             <h3>{section.sectionNo}. {section.title}</h3>
-            {section.questions.slice(0, 4).map((question) => (
+            <p>
+              문항 {sectionSummariesById.get(section.sectionId)?.questionNoRange?.join("~") ?? "-"} ·{" "}
+              {section.questions.length}문항
+            </p>
+            {section.questions.map((question) => (
               <div key={question.id} className="admin-survey-preview__question">
                 <span>문항 {question.questionNo}</span>
                 <strong>{question.displayTitle}</strong>
