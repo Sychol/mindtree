@@ -17,7 +17,7 @@ const STATUS_LABELS: Record<string, string> = {
   public: "공개",
   redeemed: "지급 완료",
   retry_wait: "재시도 대기",
-  review: "검수 필요",
+  review: "검토 필요",
   safe: "안전",
   succeeded: "성공",
   void: "무효",
@@ -40,11 +40,11 @@ const SOURCE_TYPE_LABELS: Record<string, string> = {
   keyword: "키워드",
   keyword_job: "키워드 작업",
   mind_card: "마음카드",
-  reply: "응원 문장",
+  reply: "응원문장",
 };
 
 const PROMPT_TYPE_LABELS: Record<string, string> = {
-  stress_memory: "힘들었던 순간",
+  stress_memory: "힘들었던 시간",
   to_colleague: "동료에게",
   to_now_me: "지금의 나에게",
   to_past_me: "과거의 나에게",
@@ -61,6 +61,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   fallback: "대체 추출",
   mock: "모의 실행",
   openai: "외부 분석",
+  policy: "정책 제외",
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -75,12 +76,16 @@ const ACTION_LABELS: Record<string, string> = {
   "keyword.hide": "키워드 숨김",
   "keyword.recalculate": "키워드 재계산",
   "keyword_job.retry": "키워드 작업 재시도",
+  "manual_card.create": "수동 마음카드 추가",
+  "manual_card.update_status": "수동 마음카드 상태 변경",
   "manual_keyword.create": "수동 키워드 추가",
   "manual_keyword.update_status": "수동 키워드 상태 변경",
-  "reply.delete": "응원 문장 삭제",
-  "reply.edit": "응원 문장 수정",
-  "reply.hide": "응원 문장 숨김",
-  "reply.publish": "응원 문장 공개",
+  "manual_reply.create": "수동 응원문장 추가",
+  "manual_reply.update_status": "수동 응원문장 상태 변경",
+  "reply.delete": "응원문장 삭제",
+  "reply.edit": "응원문장 수정",
+  "reply.hide": "응원문장 숨김",
+  "reply.publish": "응원문장 공개",
 };
 
 const ERROR_CODE_LABELS: Record<string, string> = {
@@ -91,7 +96,7 @@ const ERROR_CODE_LABELS: Record<string, string> = {
   EVENT_NOT_FOUND: "이벤트를 찾을 수 없습니다.",
   FORBIDDEN: "접근 권한이 없습니다.",
   INTERNAL_ERROR: "서버 오류가 발생했습니다.",
-  REPLY_NOT_FOUND: "응원 문장을 찾을 수 없습니다.",
+  REPLY_NOT_FOUND: "응원문장을 찾을 수 없습니다.",
   UNAUTHORIZED: "관리자 로그인이 필요합니다.",
 };
 
@@ -106,6 +111,10 @@ export const AUDIT_ACTION_FILTERS = [
   "keyword.hide",
   "keyword.edit",
   "keyword.recalculate",
+  "manual_card.create",
+  "manual_card.update_status",
+  "manual_reply.create",
+  "manual_reply.update_status",
   "manual_keyword.create",
   "manual_keyword.update_status",
   "keyword_job.retry",
@@ -114,7 +123,15 @@ export const AUDIT_ACTION_FILTERS = [
   "admin.login_failed",
 ] as const;
 
-export const AUDIT_TARGET_FILTERS = ["", "card", "reply", "keyword", "keyword_job", "completion_code"] as const;
+export const AUDIT_TARGET_FILTERS = [
+  "",
+  "mind_card",
+  "card",
+  "reply",
+  "keyword",
+  "keyword_job",
+  "completion_code",
+] as const;
 
 export function adminStatusLabel(value: string | null | undefined): string {
   if (!value) {
@@ -146,16 +163,16 @@ export function adminPromptTypeLabel(value: string | null | undefined): string {
 
 export function adminReplyTypeLabel(value: string | null | undefined): string {
   if (!value) {
-    return "응원 문장";
+    return "응원문장";
   }
-  return REPLY_TYPE_LABELS[value] ?? "응원 문장";
+  return REPLY_TYPE_LABELS[value] ?? "응원문장";
 }
 
 export function adminProviderLabel(value: string | null | undefined): string {
   if (!value) {
     return "-";
   }
-  return PROVIDER_LABELS[value] ?? "외부 제공자";
+  return PROVIDER_LABELS[value] ?? "기타 제공자";
 }
 
 export function adminActionLabel(value: string | null | undefined): string {
@@ -179,6 +196,9 @@ export function adminJobErrorLabel(value: string | null | undefined): string {
   }
   if (normalized.includes("unsupported")) {
     return "지원하지 않는 원본 유형";
+  }
+  if (normalized.includes("public") || normalized.includes("excluded")) {
+    return "공개 정책 제외";
   }
   return "작업 오류";
 }

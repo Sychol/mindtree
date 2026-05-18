@@ -254,7 +254,7 @@ def _validate_selectable_card(
             status.HTTP_400_BAD_REQUEST,
         )
 
-    risk_flag = RiskFlagRepository(db).get_by_session_id(card.session_id)
+    risk_flag = RiskFlagRepository(db).get_by_session_id(card.session_id) if card.session_id else None
     if risk_flag and (risk_flag.public_restriction or risk_flag.crisis_expression_detected):
         raise AppError(
             ErrorCode.BAD_REQUEST,

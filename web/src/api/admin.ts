@@ -8,8 +8,11 @@ import type {
   AdminDashboardResponse,
   AdminKeywordItem,
   AdminKeywordJobItem,
+  AdminManualCardCreateRequest,
+  AdminManualContentStatusRequest,
   AdminManualKeywordCreateRequest,
   AdminManualKeywordStatusRequest,
+  AdminManualReplyCreateRequest,
   AdminKeywordUpdateRequest,
   AdminListResponse,
   AdminLoginResponse,
@@ -152,6 +155,28 @@ export function reviewAdminCard(
   });
 }
 
+export function createManualCard(
+  eventSlug: string,
+  payload: AdminManualCardCreateRequest
+): Promise<{ auditLogCreated: boolean; card: AdminCardReviewItem; keywordJob?: { id: string; status: string } | null }> {
+  return requestJson(`/admin/events/${encoded(eventSlug)}/manual-cards`, {
+    method: "POST",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
+export function updateManualCardStatus(
+  cardId: string,
+  payload: AdminManualContentStatusRequest
+): Promise<{ auditLogCreated: boolean; card: AdminCardReviewItem }> {
+  return requestJson(`/admin/manual-cards/${encoded(cardId)}/status`, {
+    method: "PATCH",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
 export function listAdminReplies(
   eventSlug: string,
   filters: ListFilters = {}
@@ -167,6 +192,28 @@ export function reviewAdminReply(
   payload: AdminReviewRequest
 ): Promise<{ auditLogCreated: boolean }> {
   return requestJson(`/admin/replies/${encoded(replyId)}/review`, {
+    method: "PATCH",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
+export function createManualReply(
+  eventSlug: string,
+  payload: AdminManualReplyCreateRequest
+): Promise<{ auditLogCreated: boolean; reply: AdminReplyReviewItem; keywordJob?: { id: string; status: string } | null }> {
+  return requestJson(`/admin/events/${encoded(eventSlug)}/manual-replies`, {
+    method: "POST",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
+export function updateManualReplyStatus(
+  replyId: string,
+  payload: AdminManualContentStatusRequest
+): Promise<{ auditLogCreated: boolean; reply: AdminReplyReviewItem }> {
+  return requestJson(`/admin/manual-replies/${encoded(replyId)}/status`, {
     method: "PATCH",
     body: payload,
     authToken: adminToken(),

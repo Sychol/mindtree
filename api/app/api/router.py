@@ -5,6 +5,7 @@ from app.api.routes import (
     admin_auth,
     admin_events,
     admin_keywords,
+    admin_manual_content,
     admin_responses,
     admin_review,
     admin_rewards,
@@ -33,6 +34,7 @@ api_router.include_router(completion.router, tags=["completion"])
 api_router.include_router(display.router, tags=["display"])
 api_router.include_router(admin_auth.router, tags=["admin-auth"])
 api_router.include_router(admin_events.router, tags=["admin-events"])
+api_router.include_router(admin_manual_content.router, tags=["admin-manual-content"])
 api_router.include_router(admin_review.router, tags=["admin-review"])
 api_router.include_router(admin_keywords.router, tags=["admin-keywords"])
 api_router.include_router(admin_responses.router, tags=["admin-responses"])

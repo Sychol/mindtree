@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
-from app.models.enums import PublicStatus, SafetyStatus
+from app.models.enums import ContentOrigin, PublicStatus, SafetyStatus
 
 
 class MindCard(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -21,6 +21,7 @@ class MindCard(UUIDPrimaryKeyMixin, TimestampMixin, Base):
             "public_status",
             "created_at",
         ),
+        Index("idx_mind_cards_event_origin", "event_id", "origin"),
     )
 
     event_id: Mapped[UUID] = mapped_column(
@@ -28,10 +29,10 @@ class MindCard(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         ForeignKey("events.id"),
         nullable=False,
     )
-    session_id: Mapped[UUID] = mapped_column(
+    session_id: Mapped[UUID | None] = mapped_column(
         PostgresUUID(as_uuid=True),
         ForeignKey("sessions.id"),
-        nullable=False,
+        nullable=True,
     )
     prompt_type: Mapped[str] = mapped_column(String, nullable=False)
     content_raw: Mapped[str] = mapped_column(Text, nullable=False)
@@ -49,6 +50,17 @@ class MindCard(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         server_default=PublicStatus.PENDING.value,
     )
     moderation_reason: Mapped[str | None] = mapped_column(Text)
+    origin: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        default=ContentOrigin.PARTICIPANT.value,
+        server_default=ContentOrigin.PARTICIPANT.value,
+    )
+    origin_tag: Mapped[str | None] = mapped_column(Text)
+    created_by_admin_id: Mapped[UUID | None] = mapped_column(
+        PostgresUUID(as_uuid=True),
+        ForeignKey("admin_users.id"),
+    )
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     reviewed_by: Mapped[UUID | None] = mapped_column(PostgresUUID(as_uuid=True))
 

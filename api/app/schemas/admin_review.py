@@ -21,6 +21,7 @@ class AdminCardReviewItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     id: UUID
+    session_id: UUID | None = Field(default=None, alias="sessionId")
     content_raw: str = Field(alias="contentRaw")
     content_redacted: str | None = Field(default=None, alias="contentRedacted")
     prompt_type: str = Field(alias="promptType")
@@ -28,6 +29,9 @@ class AdminCardReviewItem(BaseModel):
     public_status: str = Field(alias="publicStatus")
     moderation_reason: str | None = Field(default=None, alias="moderationReason")
     risk_flags: AdminRiskFlagsPayload = Field(alias="riskFlags")
+    origin: str = "participant"
+    origin_tag: str | None = Field(default=None, alias="originTag")
+    created_by_admin_id: UUID | None = Field(default=None, alias="createdByAdminId")
     created_at: datetime = Field(alias="createdAt")
 
 
@@ -35,14 +39,18 @@ class AdminReplyReviewItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     id: UUID
+    session_id: UUID | None = Field(default=None, alias="sessionId")
     content_raw: str = Field(alias="contentRaw")
     content_redacted: str | None = Field(default=None, alias="contentRedacted")
     reply_type: str = Field(alias="replyType")
-    target_card_id: UUID = Field(alias="targetCardId")
+    target_card_id: UUID | None = Field(default=None, alias="targetCardId")
     safety_status: str = Field(alias="safetyStatus")
     public_status: str = Field(alias="publicStatus")
     moderation_reason: str | None = Field(default=None, alias="moderationReason")
     risk_flags: AdminRiskFlagsPayload = Field(alias="riskFlags")
+    origin: str = "participant"
+    origin_tag: str | None = Field(default=None, alias="originTag")
+    created_by_admin_id: UUID | None = Field(default=None, alias="createdByAdminId")
     created_at: datetime = Field(alias="createdAt")
 
 

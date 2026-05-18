@@ -31,6 +31,7 @@ router = APIRouter(prefix="/admin")
 def read_admin_cards(
     event_slug: str = Path(alias="eventSlug"),
     status_filter: str = Query(default="review", alias="status"),
+    origin_filter: str = Query(default="all", alias="origin"),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
@@ -40,6 +41,7 @@ def read_admin_cards(
         db,
         event_slug=event_slug,
         status_filter=status_filter,
+        origin_filter=origin_filter,
         limit=limit,
         offset=offset,
     )
@@ -67,6 +69,7 @@ def patch_admin_card_review(
 def read_admin_replies(
     event_slug: str = Path(alias="eventSlug"),
     status_filter: str = Query(default="review", alias="status"),
+    origin_filter: str = Query(default="all", alias="origin"),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
@@ -76,6 +79,7 @@ def read_admin_replies(
         db,
         event_slug=event_slug,
         status_filter=status_filter,
+        origin_filter=origin_filter,
         limit=limit,
         offset=offset,
     )

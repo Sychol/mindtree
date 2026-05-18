@@ -15,14 +15,19 @@ class ReplyRepository(BaseRepository[Reply]):
         self,
         *,
         event_id: UUID,
-        session_id: UUID,
-        target_card_id: UUID,
+        session_id: UUID | None,
+        target_card_id: UUID | None,
         reply_type: str,
         content_raw: str,
         content_redacted: str | None,
         safety_status: str,
         public_status: str,
         moderation_reason: str | None,
+        origin: str | None = None,
+        origin_tag: str | None = None,
+        created_by_admin_id: UUID | None = None,
+        reviewed_by: UUID | None = None,
+        reviewed_at=None,
     ) -> Reply:
         reply = Reply(
             event_id=event_id,
@@ -34,6 +39,11 @@ class ReplyRepository(BaseRepository[Reply]):
             safety_status=safety_status,
             public_status=public_status,
             moderation_reason=moderation_reason,
+            origin=origin or "participant",
+            origin_tag=origin_tag,
+            created_by_admin_id=created_by_admin_id,
+            reviewed_by=reviewed_by,
+            reviewed_at=reviewed_at,
         )
         self.db.add(reply)
         self.db.flush()
@@ -51,17 +61,20 @@ class ReplyRepository(BaseRepository[Reply]):
         *,
         event_id: UUID,
         status_filter: str,
+        origin_filter: str = "all",
         limit: int,
         offset: int,
     ) -> list[Reply]:
         statement = select(Reply).where(Reply.event_id == event_id)
         statement = _apply_reply_status_filter(statement, status_filter)
+        statement = _apply_reply_origin_filter(statement, origin_filter)
         statement = statement.order_by(desc(Reply.created_at)).limit(limit).offset(offset)
         return list(self.db.execute(statement).scalars())
 
-    def count_admin_replies(self, *, event_id: UUID, status_filter: str) -> int:
+    def count_admin_replies(self, *, event_id: UUID, status_filter: str, origin_filter: str = "all") -> int:
         statement = select(func.count(Reply.id)).where(Reply.event_id == event_id)
         statement = _apply_reply_status_filter(statement, status_filter)
+        statement = _apply_reply_origin_filter(statement, origin_filter)
         return int(self.db.execute(statement).scalar_one() or 0)
 
 
@@ -73,3 +86,9 @@ def _apply_reply_status_filter(statement, status_filter: str):
     if status_filter in {"pending", "public", "hidden", "excluded"}:
         return statement.where(Reply.public_status == status_filter)
     return statement.where(Reply.safety_status == "review")
+
+
+def _apply_reply_origin_filter(statement, origin_filter: str):
+    if origin_filter == "all":
+        return statement
+    return statement.where(Reply.origin == origin_filter)

@@ -44,12 +44,16 @@ export type AdminRiskFlags = {
 
 export type AdminReviewItemBase = {
   id: string;
+  sessionId?: string | null;
   contentRaw: string;
   contentRedacted?: string | null;
   safetyStatus: string;
   publicStatus: string;
   moderationReason?: string | null;
   riskFlags: AdminRiskFlags;
+  origin?: ContentOrigin;
+  originTag?: string | null;
+  createdByAdminId?: string | null;
   createdAt: string;
 };
 
@@ -59,7 +63,7 @@ export type AdminCardReviewItem = AdminReviewItemBase & {
 
 export type AdminReplyReviewItem = AdminReviewItemBase & {
   replyType: string;
-  targetCardId: string;
+  targetCardId?: string | null;
 };
 
 export type AdminListResponse<T> = {
@@ -111,6 +115,34 @@ export type AdminManualKeywordCreateRequest = {
 
 export type AdminManualKeywordStatusRequest = {
   status: "active" | "hidden" | "excluded";
+  reason?: string;
+};
+
+export type AdminPublicStatus = "public" | "pending" | "hidden" | "excluded";
+export type AdminSafetyStatus = "safe" | "review" | "exclude";
+
+export type AdminManualCardCreateRequest = {
+  promptType: string;
+  content: string;
+  originTag?: string;
+  publicStatus?: AdminPublicStatus;
+  createKeywordJob?: boolean;
+  reason?: string;
+};
+
+export type AdminManualReplyCreateRequest = {
+  replyType: "comfort" | "empathy" | "small_coping";
+  content: string;
+  targetCardId?: string | null;
+  originTag?: string;
+  publicStatus?: AdminPublicStatus;
+  createKeywordJob?: boolean;
+  reason?: string;
+};
+
+export type AdminManualContentStatusRequest = {
+  safetyStatus: AdminSafetyStatus;
+  publicStatus: AdminPublicStatus;
   reason?: string;
 };
 

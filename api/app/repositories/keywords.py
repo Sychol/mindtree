@@ -27,6 +27,9 @@ class KeywordRepository(BaseRepository[Keyword]):
         job_id: UUID,
         candidates: Iterable[KeywordCandidate],
         status: str = "active",
+        origin: str = "participant",
+        origin_tag: str | None = None,
+        created_by_admin_id: UUID | None = None,
     ) -> list[Keyword]:
         merged: dict[str, KeywordCandidate] = {}
         for candidate in candidates:
@@ -47,6 +50,9 @@ class KeywordRepository(BaseRepository[Keyword]):
                 status=status,
                 extraction_method=candidate.extraction_method,
                 job_id=job_id,
+                origin=origin,
+                origin_tag=origin_tag,
+                created_by_admin_id=created_by_admin_id,
             )
             self.db.add(keyword)
             keywords.append(keyword)

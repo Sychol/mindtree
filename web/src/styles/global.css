@@ -1561,6 +1561,13 @@ a {
   grid-column: span 2;
 }
 
+.admin-field--checkbox {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-height: 42px;
+}
+
 .admin-form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));

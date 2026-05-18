@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session as SQLAlchemySession
 
 from app.core.config import get_settings
 from app.models.card import MindCard
-from app.models.enums import KeywordJobStatus, KeywordSourceType, PublicStatus, SafetyStatus
+from app.models.enums import ContentOrigin, KeywordJobStatus, KeywordSourceType, PublicStatus, SafetyStatus
 from app.models.keyword import KeywordJob
 from app.models.reply import Reply
 from app.repositories.cards import MindCardRepository
@@ -53,6 +53,9 @@ class _SourceContext:
     source: MindCard | Reply
     source_hint: str
     input_text: str
+    origin: str
+    origin_tag: str | None
+    created_by_admin_id: UUID | None
 
 
 class KeywordJobProcessingError(RuntimeError):
@@ -101,6 +104,9 @@ def _load_source_context(db: SQLAlchemySession, job: KeywordJob) -> _SourceConte
             source=card,
             source_hint=card.prompt_type,
             input_text=card.content_redacted or card.content_raw,
+            origin=card.origin or ContentOrigin.PARTICIPANT.value,
+            origin_tag=card.origin_tag,
+            created_by_admin_id=card.created_by_admin_id,
         )
 
     if job.source_type == KeywordSourceType.REPLY.value:
@@ -111,6 +117,9 @@ def _load_source_context(db: SQLAlchemySession, job: KeywordJob) -> _SourceConte
             source=reply,
             source_hint=reply.reply_type,
             input_text=reply.content_redacted or reply.content_raw,
+            origin=reply.origin or ContentOrigin.PARTICIPANT.value,
+            origin_tag=reply.origin_tag,
+            created_by_admin_id=reply.created_by_admin_id,
         )
 
     raise KeywordJobProcessingError("unsupported source type")
@@ -122,7 +131,7 @@ def _source_exclusion_reason(db: SQLAlchemySession, source: MindCard | Reply) ->
     if source.safety_status != SafetyStatus.SAFE.value or source.public_status != PublicStatus.PUBLIC.value:
         return "source_not_public"
 
-    risk_flag = RiskFlagRepository(db).get_by_session_id(source.session_id)
+    risk_flag = RiskFlagRepository(db).get_by_session_id(source.session_id) if source.session_id else None
     if risk_flag and (risk_flag.public_restriction or risk_flag.crisis_expression_detected):
         return "source_public_restricted"
 
@@ -297,6 +306,9 @@ def _process_claimed_job(db: SQLAlchemySession, job_id: UUID) -> KeywordJobRunRe
         source_id=job.source_id,
         job_id=job.id,
         candidates=candidates,
+        origin=context.origin,
+        origin_tag=context.origin_tag,
+        created_by_admin_id=context.created_by_admin_id,
     )
     output_snapshot = {
         "keywords": _keyword_snapshot(candidates),

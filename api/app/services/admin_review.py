@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.core.errors import AppError, ErrorCode
 from app.models.admin import AdminUser
 from app.models.card import MindCard
-from app.models.enums import PublicStatus, SafetyStatus
+from app.models.enums import ContentOrigin, PublicStatus, SafetyStatus
 from app.models.reply import Reply
 from app.models.risk import RiskFlag
 from app.repositories.cards import MindCardRepository
@@ -68,9 +68,10 @@ def _risk_payload(risk: RiskFlag | None) -> AdminRiskFlagsPayload:
 
 
 def _card_item(db: Session, card: MindCard) -> AdminCardReviewItem:
-    risk = RiskFlagRepository(db).get_by_session_id(card.session_id)
+    risk = RiskFlagRepository(db).get_by_session_id(card.session_id) if card.session_id else None
     return AdminCardReviewItem(
         id=card.id,
+        sessionId=card.session_id,
         contentRaw=card.content_raw,
         contentRedacted=card.content_redacted,
         promptType=card.prompt_type,
@@ -78,14 +79,18 @@ def _card_item(db: Session, card: MindCard) -> AdminCardReviewItem:
         publicStatus=card.public_status,
         moderationReason=card.moderation_reason,
         riskFlags=_risk_payload(risk),
+        origin=card.origin,
+        originTag=card.origin_tag,
+        createdByAdminId=card.created_by_admin_id,
         createdAt=card.created_at,
     )
 
 
 def _reply_item(db: Session, reply: Reply) -> AdminReplyReviewItem:
-    risk = RiskFlagRepository(db).get_by_session_id(reply.session_id)
+    risk = RiskFlagRepository(db).get_by_session_id(reply.session_id) if reply.session_id else None
     return AdminReplyReviewItem(
         id=reply.id,
+        sessionId=reply.session_id,
         contentRaw=reply.content_raw,
         contentRedacted=reply.content_redacted,
         replyType=reply.reply_type,
@@ -94,13 +99,18 @@ def _reply_item(db: Session, reply: Reply) -> AdminReplyReviewItem:
         publicStatus=reply.public_status,
         moderationReason=reply.moderation_reason,
         riskFlags=_risk_payload(risk),
+        origin=reply.origin,
+        originTag=reply.origin_tag,
+        createdByAdminId=reply.created_by_admin_id,
         createdAt=reply.created_at,
     )
 
 
-def _validate_filter(status_filter: str) -> None:
+def _validate_filter(status_filter: str, origin_filter: str) -> None:
     if status_filter not in ALLOWED_FILTERS:
         raise AppError(ErrorCode.BAD_REQUEST, "지원하지 않는 상태 필터입니다.")
+    if origin_filter != "all" and origin_filter not in {item.value for item in ContentOrigin}:
+        raise AppError(ErrorCode.BAD_REQUEST, "지원하지 않는 origin 필터입니다.")
 
 
 def list_admin_cards(
@@ -108,19 +118,25 @@ def list_admin_cards(
     *,
     event_slug: str,
     status_filter: str,
+    origin_filter: str,
     limit: int,
     offset: int,
 ) -> AdminCardReviewListResponse:
-    _validate_filter(status_filter)
+    _validate_filter(status_filter, origin_filter)
     event_id = _event_id_or_404(db, event_slug)
     repo = MindCardRepository(db)
     items = repo.list_admin_cards(
         event_id=event_id,
         status_filter=status_filter,
+        origin_filter=origin_filter,
         limit=limit,
         offset=offset,
     )
-    total = repo.count_admin_cards(event_id=event_id, status_filter=status_filter)
+    total = repo.count_admin_cards(
+        event_id=event_id,
+        status_filter=status_filter,
+        origin_filter=origin_filter,
+    )
     return AdminCardReviewListResponse(
         items=[_card_item(db, item) for item in items],
         total=total,
@@ -132,19 +148,25 @@ def list_admin_replies(
     *,
     event_slug: str,
     status_filter: str,
+    origin_filter: str,
     limit: int,
     offset: int,
 ) -> AdminReplyReviewListResponse:
-    _validate_filter(status_filter)
+    _validate_filter(status_filter, origin_filter)
     event_id = _event_id_or_404(db, event_slug)
     repo = ReplyRepository(db)
     items = repo.list_admin_replies(
         event_id=event_id,
         status_filter=status_filter,
+        origin_filter=origin_filter,
         limit=limit,
         offset=offset,
     )
-    total = repo.count_admin_replies(event_id=event_id, status_filter=status_filter)
+    total = repo.count_admin_replies(
+        event_id=event_id,
+        status_filter=status_filter,
+        origin_filter=origin_filter,
+    )
     return AdminReplyReviewListResponse(
         items=[_reply_item(db, item) for item in items],
         total=total,
