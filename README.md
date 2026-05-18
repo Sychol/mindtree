@@ -113,6 +113,17 @@ docker compose ps
 
 ### Migration과 seed
 
+로컬 Docker Compose의 API 컨테이너는 시작할 때 기본적으로 migration과 개발 seed를 자동 실행한다.
+
+```txt
+AUTO_MIGRATE=true
+AUTO_SEED_DEV=missing
+```
+
+`seed_dev`는 `fire-expo-2026` 이벤트, 최종 문항 seed, 관리자 계정, 공개 seed 카드를 준비한다. `AUTO_SEED_DEV=missing`이면 이벤트/문항 seed가 없거나 부족할 때만 자동 실행한다. 강제로 다시 upsert하려면 `AUTO_SEED_DEV=true`, 자동 실행을 끄려면 `false`로 둔다.
+
+수동으로 다시 실행해야 할 때:
+
 ```bash
 docker compose exec api alembic upgrade head
 docker compose exec api python -m app.scripts.seed_dev

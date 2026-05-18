@@ -33,6 +33,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const SOURCE_TYPE_LABELS: Record<string, string> = {
   admin: "관리자",
+  admin_manual: "관리자 추가",
   admin_user: "관리자",
   card: "마음카드",
   completion_code: "완료 코드",
@@ -74,6 +75,8 @@ const ACTION_LABELS: Record<string, string> = {
   "keyword.hide": "키워드 숨김",
   "keyword.recalculate": "키워드 재계산",
   "keyword_job.retry": "키워드 작업 재시도",
+  "manual_keyword.create": "수동 키워드 추가",
+  "manual_keyword.update_status": "수동 키워드 상태 변경",
   "reply.delete": "응원 문장 삭제",
   "reply.edit": "응원 문장 수정",
   "reply.hide": "응원 문장 숨김",
@@ -103,6 +106,8 @@ export const AUDIT_ACTION_FILTERS = [
   "keyword.hide",
   "keyword.edit",
   "keyword.recalculate",
+  "manual_keyword.create",
+  "manual_keyword.update_status",
   "keyword_job.retry",
   "completion_code.redeem",
   "completion_code.void",

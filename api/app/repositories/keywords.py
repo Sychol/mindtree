@@ -54,6 +54,40 @@ class KeywordRepository(BaseRepository[Keyword]):
         self.db.flush()
         return keywords
 
+    def create_manual_keyword(
+        self,
+        *,
+        event_id: UUID,
+        keyword_text: str,
+        normalized_keyword: str,
+        category: str,
+        weight: Decimal,
+        status: str,
+        source_type: str,
+        extraction_method: str,
+        origin: str,
+        origin_tag: str,
+        created_by_admin_id: UUID,
+    ) -> Keyword:
+        keyword = Keyword(
+            event_id=event_id,
+            source_type=source_type,
+            source_id=None,
+            keyword_text=keyword_text,
+            normalized_keyword=normalized_keyword,
+            category=category,
+            weight=weight,
+            status=status,
+            extraction_method=extraction_method,
+            job_id=None,
+            origin=origin,
+            origin_tag=origin_tag,
+            created_by_admin_id=created_by_admin_id,
+        )
+        self.db.add(keyword)
+        self.db.flush()
+        return keyword
+
     def list_keywords_by_source(
         self,
         *,
@@ -76,6 +110,7 @@ class KeywordRepository(BaseRepository[Keyword]):
         event_id: UUID,
         status_filter: str,
         category: str | None,
+        origin_filter: str,
         limit: int,
         offset: int,
     ) -> list[Keyword]:
@@ -84,6 +119,8 @@ class KeywordRepository(BaseRepository[Keyword]):
             statement = statement.where(Keyword.status == status_filter)
         if category:
             statement = statement.where(Keyword.category == category)
+        if origin_filter != "all":
+            statement = statement.where(Keyword.origin == origin_filter)
         statement = statement.order_by(Keyword.created_at.desc()).limit(limit).offset(offset)
         return list(self.db.execute(statement).scalars())
 
@@ -93,12 +130,15 @@ class KeywordRepository(BaseRepository[Keyword]):
         event_id: UUID,
         status_filter: str,
         category: str | None,
+        origin_filter: str,
     ) -> int:
         statement = select(func.count(Keyword.id)).where(Keyword.event_id == event_id)
         if status_filter != "all":
             statement = statement.where(Keyword.status == status_filter)
         if category:
             statement = statement.where(Keyword.category == category)
+        if origin_filter != "all":
+            statement = statement.where(Keyword.origin == origin_filter)
         return int(self.db.execute(statement).scalar_one() or 0)
 
     def update_status_by_source(

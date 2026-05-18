@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 from app.models.enums import (
+    ContentOrigin,
     KeywordCategory,
     KeywordExtractionMethod,
     KeywordJobStatus,
@@ -64,6 +65,7 @@ class Keyword(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __table_args__ = (
         Index("idx_keywords_event_status", "event_id", "status", "normalized_keyword"),
         Index("idx_keywords_event_status_category", "event_id", "status", "category"),
+        Index("idx_keywords_event_origin_status", "event_id", "origin", "status"),
     )
 
     event_id: Mapped[UUID] = mapped_column(
@@ -72,7 +74,7 @@ class Keyword(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
     )
     source_type: Mapped[str] = mapped_column(String, nullable=False)
-    source_id: Mapped[UUID] = mapped_column(PostgresUUID(as_uuid=True), nullable=False)
+    source_id: Mapped[UUID | None] = mapped_column(PostgresUUID(as_uuid=True))
     keyword_text: Mapped[str] = mapped_column(String, nullable=False)
     normalized_keyword: Mapped[str] = mapped_column(String, nullable=False)
     category: Mapped[str] = mapped_column(
@@ -97,4 +99,15 @@ class Keyword(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     job_id: Mapped[UUID | None] = mapped_column(
         PostgresUUID(as_uuid=True),
         ForeignKey("keyword_jobs.id"),
+    )
+    origin: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        default=ContentOrigin.PARTICIPANT.value,
+        server_default=ContentOrigin.PARTICIPANT.value,
+    )
+    origin_tag: Mapped[str | None] = mapped_column(Text)
+    created_by_admin_id: Mapped[UUID | None] = mapped_column(
+        PostgresUUID(as_uuid=True),
+        ForeignKey("admin_users.id"),
     )

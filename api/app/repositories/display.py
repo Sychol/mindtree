@@ -11,6 +11,7 @@ from app.models.card import MindCard
 from app.models.completion import CompletionCode
 from app.models.enums import (
     CompletionCodeStatus,
+    ContentOrigin,
     KeywordSourceType,
     KeywordStatus,
     PublicStatus,
@@ -114,7 +115,27 @@ class DisplayRepository:
             )
         )
 
-        statement = union_all(card_keywords, reply_keywords)
+        manual_keywords = (
+            select(
+                Keyword.normalized_keyword.label("text"),
+                Keyword.category.label("category"),
+                Keyword.weight.label("weight"),
+            )
+            .select_from(Keyword)
+            .where(
+                Keyword.event_id == event_id,
+                Keyword.status == KeywordStatus.ACTIVE.value,
+                Keyword.source_type == KeywordSourceType.ADMIN_MANUAL.value,
+                Keyword.origin.in_(
+                    [
+                        ContentOrigin.ADMIN_MANUAL.value,
+                        ContentOrigin.SYSTEM_SEED.value,
+                    ]
+                ),
+            )
+        )
+
+        statement = union_all(card_keywords, reply_keywords, manual_keywords)
         rows = self.db.execute(statement).all()
         return [
             DisplayKeywordRow(

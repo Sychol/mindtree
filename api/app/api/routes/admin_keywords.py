@@ -11,14 +11,20 @@ from app.schemas.admin_keywords import (
     AdminKeywordJobRetryRequest,
     AdminKeywordJobRetryResponse,
     AdminKeywordListResponse,
+    AdminManualKeywordCreateRequest,
+    AdminManualKeywordCreateResponse,
+    AdminManualKeywordStatusRequest,
+    AdminManualKeywordStatusResponse,
     AdminKeywordUpdateRequest,
     AdminKeywordUpdateResponse,
 )
 from app.services.admin_keywords import (
+    create_manual_keyword,
     list_admin_keyword_jobs,
     list_admin_keywords,
     retry_admin_keyword_job,
     update_admin_keyword,
+    update_manual_keyword_status,
 )
 
 router = APIRouter(prefix="/admin")
@@ -32,6 +38,7 @@ def read_admin_keywords(
     event_slug: str = Path(alias="eventSlug"),
     status_filter: str = Query(default="active", alias="status"),
     category: str | None = Query(default=None),
+    origin_filter: str = Query(default="all", alias="origin"),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
@@ -42,8 +49,27 @@ def read_admin_keywords(
         event_slug=event_slug,
         status_filter=status_filter,
         category=category,
+        origin_filter=origin_filter,
         limit=limit,
         offset=offset,
+    )
+
+
+@router.post(
+    "/events/{eventSlug}/keywords/manual",
+    response_model=AdminManualKeywordCreateResponse,
+)
+def post_manual_keyword(
+    payload: AdminManualKeywordCreateRequest,
+    event_slug: str = Path(alias="eventSlug"),
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
+) -> AdminManualKeywordCreateResponse:
+    return create_manual_keyword(
+        db,
+        event_slug=event_slug,
+        payload=payload,
+        admin=current_admin,
     )
 
 
@@ -58,6 +84,19 @@ def patch_admin_keyword(
     current_admin: AdminUser = Depends(get_current_admin),
 ) -> AdminKeywordUpdateResponse:
     return update_admin_keyword(db, keyword_id=keyword_id, payload=payload, admin=current_admin)
+
+
+@router.patch(
+    "/keywords/{keywordId}/manual-status",
+    response_model=AdminManualKeywordStatusResponse,
+)
+def patch_manual_keyword_status(
+    payload: AdminManualKeywordStatusRequest,
+    keyword_id: UUID = Path(alias="keywordId"),
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
+) -> AdminManualKeywordStatusResponse:
+    return update_manual_keyword_status(db, keyword_id=keyword_id, payload=payload, admin=current_admin)
 
 
 @router.get(

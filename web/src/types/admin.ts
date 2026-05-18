@@ -67,6 +67,8 @@ export type AdminListResponse<T> = {
   total: number;
 };
 
+export type ContentOrigin = "participant" | "admin_manual" | "system_seed";
+
 export type AdminReviewRequest = {
   safetyStatus: string;
   publicStatus: string;
@@ -83,7 +85,10 @@ export type AdminKeywordItem = {
   status: string;
   extractionMethod: string;
   sourceType: string;
-  sourceId: string;
+  sourceId: string | null;
+  origin?: ContentOrigin;
+  originTag?: string | null;
+  createdByAdminId?: string | null;
   createdAt: string;
 };
 
@@ -92,6 +97,21 @@ export type AdminKeywordUpdateRequest = {
   category?: string;
   status?: string;
   reason?: string | null;
+};
+
+export type AdminManualKeywordCreateRequest = {
+  keywordText: string;
+  normalizedKeyword?: string;
+  category: "mind_signal" | "support" | "recovery" | "coping" | "neutral";
+  weight?: number;
+  status?: "active" | "hidden" | "excluded";
+  originTag?: string;
+  reason?: string;
+};
+
+export type AdminManualKeywordStatusRequest = {
+  status: "active" | "hidden" | "excluded";
+  reason?: string;
 };
 
 export type AdminKeywordJobItem = {

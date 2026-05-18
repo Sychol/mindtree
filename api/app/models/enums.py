@@ -66,6 +66,13 @@ class KeywordSourceType(StrEnum):
     MIND_CARD = "mind_card"
     REPLY = "reply"
     SUMMARY = "summary"
+    ADMIN_MANUAL = "admin_manual"
+
+
+class ContentOrigin(StrEnum):
+    PARTICIPANT = "participant"
+    ADMIN_MANUAL = "admin_manual"
+    SYSTEM_SEED = "system_seed"
 
 
 class KeywordCategory(StrEnum):

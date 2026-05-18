@@ -1514,6 +1514,11 @@ a {
   gap: 16px;
 }
 
+.admin-page-stack {
+  display: grid;
+  gap: 22px;
+}
+
 .admin-section__header {
   display: flex;
   gap: 14px;
@@ -1550,6 +1555,26 @@ a {
   color: #26362f;
   font-size: 14px;
   font-weight: 800;
+}
+
+.admin-field--wide {
+  grid-column: span 2;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  align-items: end;
+  padding: 16px;
+  border: 1px solid #d8ded8;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .admin-input,
@@ -1686,6 +1711,21 @@ a {
 
 .admin-table--moderation {
   min-width: 1100px;
+}
+
+.admin-table--keywords {
+  min-width: 1180px;
+}
+
+.admin-keyword-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .admin-response-grid {
@@ -1901,5 +1941,9 @@ a {
 
   .admin-main {
     padding: 16px;
+  }
+
+  .admin-field--wide {
+    grid-column: auto;
   }
 }

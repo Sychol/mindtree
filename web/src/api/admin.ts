@@ -8,6 +8,8 @@ import type {
   AdminDashboardResponse,
   AdminKeywordItem,
   AdminKeywordJobItem,
+  AdminManualKeywordCreateRequest,
+  AdminManualKeywordStatusRequest,
   AdminKeywordUpdateRequest,
   AdminListResponse,
   AdminLoginResponse,
@@ -25,6 +27,7 @@ type QueryFilters = Record<string, string | number | boolean | null | undefined>
 type ListFilters = QueryFilters & {
   status?: string;
   category?: string;
+  origin?: string;
   action?: string;
   targetType?: string;
   limit?: number;
@@ -180,11 +183,33 @@ export function listAdminKeywords(
   );
 }
 
+export function createManualKeyword(
+  eventSlug: string,
+  payload: AdminManualKeywordCreateRequest
+): Promise<{ auditLogCreated: boolean; keyword: AdminKeywordItem }> {
+  return requestJson(`/admin/events/${encoded(eventSlug)}/keywords/manual`, {
+    method: "POST",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
 export function updateAdminKeyword(
   keywordId: string,
   payload: AdminKeywordUpdateRequest
 ): Promise<{ auditLogCreated: boolean; keyword: AdminKeywordItem }> {
   return requestJson(`/admin/keywords/${encoded(keywordId)}`, {
+    method: "PATCH",
+    body: payload,
+    authToken: adminToken(),
+  });
+}
+
+export function updateManualKeywordStatus(
+  keywordId: string,
+  payload: AdminManualKeywordStatusRequest
+): Promise<{ auditLogCreated: boolean; keyword: AdminKeywordItem }> {
+  return requestJson(`/admin/keywords/${encoded(keywordId)}/manual-status`, {
     method: "PATCH",
     body: payload,
     authToken: adminToken(),

@@ -24,6 +24,9 @@ services:
     container_name: maeumnamu-api
     env_file:
       - .env
+    environment:
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+      AUTO_SEED_DEV: ${AUTO_SEED_DEV:-missing}
     ports:
       - "${API_PORT:-8000}:8000"
     depends_on:

@@ -24,7 +24,7 @@ function errorText(error: unknown): string {
 
 export function AdminKeywordJobsPage() {
   const { eventSlug = "fire-expo-2026" } = useParams();
-  const [status, setStatus] = useState("failed");
+  const [status, setStatus] = useState("all");
   const [items, setItems] = useState<AdminKeywordJobItem[]>([]);
   const [error, setError] = useState<string | null>(null);
 

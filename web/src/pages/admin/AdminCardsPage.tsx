@@ -16,7 +16,7 @@ function errorText(error: unknown): string {
 
 export function AdminCardsPage() {
   const { eventSlug = "fire-expo-2026" } = useParams();
-  const [status, setStatus] = useState("review");
+  const [status, setStatus] = useState("all");
   const [items, setItems] = useState<AdminCardReviewItem[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
